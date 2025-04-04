@@ -100,3 +100,9 @@ Tijdens een reis typt eric vaak als de trein bij een station stopt, want dan bew
 ### Mogelijk Idee
 
 Grootste wens is een toetsenbord wat handig in gebruik zal zijn, staat volledig open om de nieuwe methodes te leren om hier door heen te gaan. staat ook open om spraak te gebruiken.
+
+
+
+### Feedback Voortganggesprek wk 1
+
+
