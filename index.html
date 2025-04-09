@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>keyboard tactics</title>
+
+    <link rel="stylesheet" href="./css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Dutch Stenograph Keyboard</h1>
+        
+        <div class="output-container">
+            <textarea class="output-area" id="output" readonly></textarea>
+            <button class="word-delete-btn" id="wordDeleteBtn">Delete Word</button>
+        </div>
+        
+        <div class="suggestions" id="suggestions"></div>
+        
+        <div class="controls">
+            <button class="control-btn" id="enterBtn">Enter</button>
+            <button class="control-btn" id="spaceBtn">Space</button>
+            <button class="control-btn" id="backspaceBtn">Backspace Key</button>
+            <button class="control-btn clear" id="clearBtn">Clear Keys</button>
+        </div>
+        
+        <div class="selected-keys" id="selectedKeys"></div>
+        
+        <div class="tabs">
+            <button class="tab-btn active" id="stenographTab">Stenograph</button>
+            <button class="tab-btn" id="fullKeyboardTab">Full Alphabet</button>
+            <button class="info-toggle" id="infoToggle">?</button>
+        </div>
+        
+        <div class="keyboard-container">
+            <div class="keyboard" id="stenographKeyboard">
+                <div class="key" data-key="S">S</div>
+                <div class="key" data-key="T">T</div>
+                <div class="key" data-key="K">K</div>
+                <div class="key" data-key="P">P</div>
+                <div class="key" data-key="W">W</div>
+                <div class="key" data-key="H">H</div>
+                <div class="key" data-key="R">R</div>
+                <div class="key" data-key="A">A</div>
+                <div class="key" data-key="O">O</div>
+                <div class="key" data-key="E">E</div>
+                <div class="key" data-key="U">U</div>
+                <div class="key" data-key="I">I</div>
+            </div>
+            
+            <div class="full-keyboard" id="fullKeyboard" style="display: none;">
+                <div class="key type-key" data-char="A">A</div>
+                <div class="key type-key" data-char="B">B</div>
+                <div class="key type-key" data-char="C">C</div>
+                <div class="key type-key" data-char="D">D</div>
+                <div class="key type-key" data-char="E">E</div>
+                <div class="key type-key" data-char="F">F</div>
+                <div class="key type-key" data-char="G">G</div>
+                <div class="key type-key" data-char="H">H</div>
+                <div class="key type-key" data-char="I">I</div>
+                <div class="key type-key" data-char="J">J</div>
+                <div class="key type-key" data-char="K">K</div>
+                <div class="key type-key" data-char="L">L</div>
+                <div class="key type-key" data-char="M">M</div>
+                <div class="key type-key" data-char="N">N</div>
+                <div class="key type-key" data-char="O">O</div>
+                <div class="key type-key" data-char="P">P</div>
+                <div class="key type-key" data-char="Q">Q</div>
+                <div class="key type-key" data-char="R">R</div>
+                <div class="key type-key" data-char="S">S</div>
+                <div class="key type-key" data-char="T">T</div>
+                <div class="key type-key" data-char="U">U</div>
+                <div class="key type-key" data-char="V">V</div>
+                <div class="key type-key" data-char="W">W</div>
+                <div class="key type-key" data-char="X">X</div>
+                <div class="key type-key" data-char="Y">Y</div>
+                <div class="key type-key" data-char="Z">Z</div>
+                <div class="key type-key double-width" data-char=" ">Space</div>
+                <div class="key type-key" data-char=".">.</div>
+                <div class="key type-key" data-char=",">,</div>
+                <div class="key type-key" data-char="!">!</div>
+                <div class="key type-key" data-char="?">?</div>
+            </div>
+        </div>
+        
+        <div class="info" id="infoPanel" style="display: none;">
+            <h3>How to use:</h3>
+            <p>1. Click keys to select them in the order you want to type</p>
+            <p>2. As you select keys, word suggestions will appear</p>
+            <p>3. The <strong style="color: #28a745;">green suggestion</strong> shows the direct word formed by your key sequence</p>
+            <p>4. Click a suggestion to add it to your text</p>
+            <p>5. Use "Backspace Key" to remove the last selected key</p>
+            <p>6. Use "Clear Keys" to clear all selected keys</p>
+            <p>7. Use "Delete Word" to remove the last word from your text</p>
+            <p>8. Switch to "Full Alphabet" to directly type individual letters</p>
+        </div>
+    </div>
+
+    <script src="./js/dictionary.js"></script>
+    <script src="./js/main.js"></script>
+</body>
+</html>
