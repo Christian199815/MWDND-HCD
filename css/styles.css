@@ -33,6 +33,10 @@ body {
         font-size: 16px;
     }
     
+    .full-keyboard .key {
+        font-size: 12px;
+    }
+    
     .suggestion {
         font-size: 18px;
         padding: 10px 15px;
@@ -163,13 +167,24 @@ body {
 
 .full-keyboard {
     display: grid;
-    grid-template-columns: repeat(6, 1fr);
-    gap: 10px;
+    grid-template-columns: repeat(10, 1fr);
+    gap: 3px;
     width: 100%;
 }
 
-.double-width {
-    grid-column: span 2;
+.full-keyboard .key {
+    font-size: 14px;
+    padding: 5px;
+    height: 40px; /* Increased height */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.space-key {
+    grid-column: span 10;
+    font-size: 14px;
+    height: 40px; /* Consistent height */
 }
 
 .keyboard {
@@ -180,7 +195,6 @@ body {
 }
 
 .key {
-    aspect-ratio: 1 / 1;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -193,6 +207,11 @@ body {
     user-select: none;
     transition: all 0.2s;
     box-shadow: 0 4px 0 #999;
+    aspect-ratio: 1 / 1; /* Ensures square shape */
+    width: 100%; /* Full width of grid cell */
+    height: 100%; /* Full height of grid cell */
+    min-height: 60px; /* Minimum height */
+    min-width: 60px; /* Minimum width */
 }
 
 .key:active, .key.active {
@@ -225,6 +244,7 @@ body {
     font-size: 14px;
     font-weight: bold;
     box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    min-height: 60px; /* Consistent with key size */
 }
 
 .control-btn:hover {
@@ -245,22 +265,4 @@ body {
     background-color: #fff3cd;
     border-left: 4px solid #ffc107;
     border-radius: 4px;
-}
-
-.selected-keys {
-    display: flex;
-    gap: 5px;
-    flex-wrap: wrap;
-    margin-bottom: 10px;
-    min-height: 40px;
-    height: 40px;
-    overflow-y: auto;
-}
-
-.selected-key {
-    background-color: #007bff;
-    color: white;
-    padding: 3px 8px;
-    border-radius: 4px;
-    font-size: 14px;
 }

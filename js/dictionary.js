@@ -89,38 +89,5 @@ const dictionary = {
     'IDK': ['idk', 'ik weet niet', 'ik denk'],
     'OMG': ['omg', 'oh mijn god', 'ongelooflijk'],
     'BTW': ['btw', 'by the way', 'tussen haakjes'],
-    'TMI': ['tmi', 'teveel info', 'te veel'],
-    
-    // Food and drinks (common during commute)
-    'KF': ['koffie', 'koffie to go', 'koffieautomaat'],
-    'TH': ['thee', 'thuis', 'thee drinken'],
-    'BR': ['broodje', 'brood', 'brunch'],
-    'ET': ['eten', 'etenstijd', 'eet'],
-    'DR': ['drinken', 'drank', 'druk'],
-    
-    // Common chat phrases
-    'HG': ['hou je goed', 'hoe gaat', 'hoezo'],
-    'WR': ['waar ben je', 'waar is', 'waarom'],
-    'ZS': ['zie je straks', 'ziens', 'zo snel'],
-    'TZ': ['tot zo', 'tot ziens', 'tot straks'],
-    'BD': ['ben druk', 'bedankt', 'ben daar'],
-    'KS': ['kom snel', 'kus', 'kom straks'],
-    'MS': ['message', 'mis je', 'misschien'],
-    'LT': ['laat', 'laat het weten', 'lukt niet'],
-    'GL': ['geluid', 'gelijk', 'gelukt'],
-    
-    // Common work-related (for commuters)
-    'WK': ['werk', 'werkdag', 'weekend'],
-    'MT': ['meeting', 'moet', 'moet werken'],
-    'ML': ['mail', 'mailen', 'mailbox'],
-    'PR': ['project', 'presentatie', 'praktisch'],
-    'AF': ['afspraak', 'afsluiten', 'afmaken'],
-    'CL': ['collega', 'call', 'client'],
-    
-    // Casual responses
-    'NP': ['no problem', 'geen probleem', 'neem plaats'],
-    'TK': ['tuurlijk', 'take care', 'technisch'],
-    'GW': ['geen probleem', 'geweldig', 'gewoon'],
-    'CH': ['check', 'chill', 'chat'],
-    'ZK': ['zeker', 'zoeken', 'zakelijk']
+    'TMI': ['tmi', 'teveel info', 'te veel']
 };

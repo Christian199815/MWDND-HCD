@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>keyboard tactics</title>
+    <title>Eric of het groot toetsenbord</title>
 
     <link rel="stylesheet" href="./css/styles.css">
 </head>
@@ -24,8 +24,6 @@
             <button class="control-btn" id="backspaceBtn">Backspace Key</button>
             <button class="control-btn clear" id="clearBtn">Clear Keys</button>
         </div>
-        
-        <div class="selected-keys" id="selectedKeys"></div>
         
         <div class="tabs">
             <button class="tab-btn active" id="stenographTab">Stenograph</button>
@@ -50,37 +48,56 @@
             </div>
             
             <div class="full-keyboard" id="fullKeyboard" style="display: none;">
-                <div class="key type-key" data-char="A">A</div>
-                <div class="key type-key" data-char="B">B</div>
-                <div class="key type-key" data-char="C">C</div>
-                <div class="key type-key" data-char="D">D</div>
+                <!-- First row (numbers) -->
+                <div class="key type-key" data-char="1">1</div>
+                <div class="key type-key" data-char="2">2</div>
+                <div class="key type-key" data-char="3">3</div>
+                <div class="key type-key" data-char="4">4</div>
+                <div class="key type-key" data-char="5">5</div>
+                <div class="key type-key" data-char="6">6</div>
+                <div class="key type-key" data-char="7">7</div>
+                <div class="key type-key" data-char="8">8</div>
+                <div class="key type-key" data-char="9">9</div>
+                <div class="key type-key" data-char="0">0</div>
+                
+                <!-- Second row (QWERTY) -->
+                <div class="key type-key" data-char="Q">Q</div>
+                <div class="key type-key" data-char="W">W</div>
                 <div class="key type-key" data-char="E">E</div>
+                <div class="key type-key" data-char="R">R</div>
+                <div class="key type-key" data-char="T">T</div>
+                <div class="key type-key" data-char="Y">Y</div>
+                <div class="key type-key" data-char="U">U</div>
+                <div class="key type-key" data-char="I">I</div>
+                <div class="key type-key" data-char="O">O</div>
+                <div class="key type-key" data-char="P">P</div>
+                
+                <!-- Third row (ASDF) -->
+                <div class="key type-key" data-char="A">A</div>
+                <div class="key type-key" data-char="S">S</div>
+                <div class="key type-key" data-char="D">D</div>
                 <div class="key type-key" data-char="F">F</div>
                 <div class="key type-key" data-char="G">G</div>
                 <div class="key type-key" data-char="H">H</div>
-                <div class="key type-key" data-char="I">I</div>
                 <div class="key type-key" data-char="J">J</div>
                 <div class="key type-key" data-char="K">K</div>
                 <div class="key type-key" data-char="L">L</div>
-                <div class="key type-key" data-char="M">M</div>
-                <div class="key type-key" data-char="N">N</div>
-                <div class="key type-key" data-char="O">O</div>
-                <div class="key type-key" data-char="P">P</div>
-                <div class="key type-key" data-char="Q">Q</div>
-                <div class="key type-key" data-char="R">R</div>
-                <div class="key type-key" data-char="S">S</div>
-                <div class="key type-key" data-char="T">T</div>
-                <div class="key type-key" data-char="U">U</div>
-                <div class="key type-key" data-char="V">V</div>
-                <div class="key type-key" data-char="W">W</div>
-                <div class="key type-key" data-char="X">X</div>
-                <div class="key type-key" data-char="Y">Y</div>
-                <div class="key type-key" data-char="Z">Z</div>
-                <div class="key type-key double-width" data-char=" ">Space</div>
                 <div class="key type-key" data-char=".">.</div>
+                
+                <!-- Fourth row (ZXCV) -->
+                <div class="key type-key" data-char="Z">Z</div>
+                <div class="key type-key" data-char="X">X</div>
+                <div class="key type-key" data-char="C">C</div>
+                <div class="key type-key" data-char="V">V</div>
+                <div class="key type-key" data-char="B">B</div>
+                <div class="key type-key" data-char="N">N</div>
+                <div class="key type-key" data-char="M">M</div>
                 <div class="key type-key" data-char=",">,</div>
                 <div class="key type-key" data-char="!">!</div>
                 <div class="key type-key" data-char="?">?</div>
+                
+                <!-- Fifth row (space) -->
+                <div class="key type-key space-key" data-char=" ">Space</div>
             </div>
         </div>
         

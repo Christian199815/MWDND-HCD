@@ -3,7 +3,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const fullKeyboard = document.getElementById('fullKeyboard');
     const suggestions = document.getElementById('suggestions');
     const output = document.getElementById('output');
-    const selectedKeysDiv = document.getElementById('selectedKeys');
     const enterBtn = document.getElementById('enterBtn');
     const spaceBtn = document.getElementById('spaceBtn');
     const backspaceBtn = document.getElementById('backspaceBtn');
@@ -51,19 +50,6 @@ document.addEventListener('DOMContentLoaded', function() {
             const keyValue = key.dataset.key;
             key.classList.toggle('active', selectedKeys.includes(keyValue));
         });
-        
-        // Update selected keys display
-        if (selectedKeysDiv) {
-            selectedKeysDiv.innerHTML = '';
-            if (selectedKeys.length > 0) {
-                selectedKeys.forEach(key => {
-                    const keyElement = document.createElement('div');
-                    keyElement.className = 'selected-key';
-                    keyElement.textContent = key;
-                    selectedKeysDiv.appendChild(keyElement);
-                });
-            }
-        }
         
         // Generate suggestions
         updateSuggestions();
@@ -149,17 +135,40 @@ document.addEventListener('DOMContentLoaded', function() {
         const key = event.target;
         if (key.classList.contains('type-key')) {
             const charValue = key.dataset.char;
-            // Directly type the character
-            output.value += charValue;
+            
+            // Add to selected keys to get suggestions
+            if (charValue.match(/[A-Za-z]/)) {
+                selectedKeys.push(charValue.toUpperCase());
+                updateSuggestions();
+            } else {
+                // For non-letters (space, punctuation, etc.), add directly to output
+                output.value += charValue;
+            }
         }
     });
     
     enterBtn.addEventListener('click', () => {
-        output.value += '\n';
+        // If there's a current word in suggestions (first one, the green one)
+        if (selectedKeys.length > 0) {
+            const directWord = selectedKeys.join('').toLowerCase();
+            appendWord(directWord);
+            clearSelectedKeys();
+        } else {
+            // If no current word, just add a new line
+            output.value += '\n';
+        }
     });
     
     spaceBtn.addEventListener('click', () => {
-        output.value += ' ';
+        // If there are selected keys, add the current word + space
+        if (selectedKeys.length > 0) {
+            const directWord = selectedKeys.join('').toLowerCase();
+            appendWord(directWord);
+            clearSelectedKeys();
+        } else {
+            // If no word is being composed, just add a space
+            output.value += ' ';
+        }
     });
     
     backspaceBtn.addEventListener('click', () => {
@@ -171,15 +180,38 @@ document.addEventListener('DOMContentLoaded', function() {
     
     wordDeleteBtn.addEventListener('click', () => {
         const text = output.value;
+        
+        // If text is empty, nothing to delete
+        if (text.length === 0) return;
+        
+        // Find the last space or newline
         const lastSpaceIndex = text.lastIndexOf(' ');
         const lastNewlineIndex = text.lastIndexOf('\n');
         const lastIndex = Math.max(lastSpaceIndex, lastNewlineIndex);
         
         if (lastIndex === -1) {
-            // No spaces or newlines, clear all
+            // No spaces or newlines, clear all (this is a single word or characters)
             output.value = '';
         } else {
-            output.value = text.substring(0, lastIndex + 1);
+            // Check if there's content after the last delimiter
+            if (lastIndex + 1 < text.length) {
+                // Delete the partial word after the delimiter
+                output.value = text.substring(0, lastIndex + 1);
+            } else {
+                // If cursor is at end of a space/newline, find previous word
+                const textWithoutLastDelimiter = text.substring(0, lastIndex);
+                const prevLastSpaceIndex = textWithoutLastDelimiter.lastIndexOf(' ');
+                const prevLastNewlineIndex = textWithoutLastDelimiter.lastIndexOf('\n');
+                const prevLastIndex = Math.max(prevLastSpaceIndex, prevLastNewlineIndex);
+                
+                if (prevLastIndex === -1) {
+                    // Only one word before the delimiter
+                    output.value = '';
+                } else {
+                    // Delete back to previous delimiter
+                    output.value = text.substring(0, prevLastIndex + 1);
+                }
+            }
         }
     });
     
