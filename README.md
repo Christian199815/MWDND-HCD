@@ -1,8 +1,12 @@
 # MWDND-HCD
 
+[Section Title](#section_id)
+
+
+
 
 ## Week 1 
-<hr>
+<hr id="wk1">
 
 
 ### Informatie over Eric
@@ -100,6 +104,9 @@ Tijdens een reis typt eric vaak als de trein bij een station stopt, want dan bew
 ### Mogelijk Idee
 
 Grootste wens is een toetsenbord wat handig in gebruik zal zijn, staat volledig open om de nieuwe methodes te leren om hier door heen te gaan. staat ook open om spraak te gebruiken.
+
+<a id="section_id"></a>
+###Gerda
 
 
 
