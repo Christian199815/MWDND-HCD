@@ -1,9 +1,8 @@
 # MWDND-HCD
-
-[Section Title](#section_id)
-
+<hr>
 
 
+<hr>
 
 ## Week 1 
 <hr id="wk1">
@@ -105,11 +104,45 @@ Tijdens een reis typt eric vaak als de trein bij een station stopt, want dan bew
 
 Grootste wens is een toetsenbord wat handig in gebruik zal zijn, staat volledig open om de nieuwe methodes te leren om hier door heen te gaan. staat ook open om spraak te gebruiken.
 
-<a id="section_id"></a>
-###Gerda
 
 
 
 ### Feedback Voortganggesprek wk 1
 
+<hr>
+
+## Week 2
+
+### Het Onderzoek
+
+Eric heeft vorige week ons laten inzien dat zijn probleem als oplossing een betere manier van typen geeft. Hierdoor ben ik opzoek gegaan naar verschillende manieren waarop mensen kunnen typen. Of beter gezegd ik ben op zoek gegaan naar de verschillende manieren waarop een gebruiker woorden en zinnen zou kunnen maken.
+
+- Een fysiek toetsenbord
+- Een spraakherkenner (speech to text)
+- Handschrift Herkenning
+- Een braille toetsenbord
+- Oogbesturing
+- Morse code
+- Custom invoer apparaat
+- Een digtaal toetsenbord
+
+Als we Eric zijn situatie gaan gebruiken als meetbord welk van deze opties het meest toepasbaar is op de opdracht die wij vanuit het vak hebben gekregen. Dan ziet dit er als volgt uit:
+
+- fysiek toetsenbord, Leuk maar wordt al gauw best groot en zal in de weg gaan zitten met het dagelijks gebruik van Eric.
+- spraakherkenner, Kan goed werken maar de situatie is dat Eric in de trein zit, dit is sowieso al best luid en om ook nog mogelijke prive zaken hardop te gaan bespreken beetje gek.
+- handschrift herkenner, Letters invullen om woorden te maken, voelt als veel beweging om een lang woord te maken. Beweging die goed moet gaan wat ook weer extra zorg is in een trein die al veel beweegt.
+- braille toetsenbord, Eric is niet blind, en kan niet goed met zijn vingers bewegen. Hij gebruikt een stylus dus dat werkt ook niet zo goed op een braille toetsenbord.
+- Oogbesturing, Super leuk idee denk dat dit goed zou kunnen werken. Althans niet met de setup die eric nu heeft, want het enige slimme apparaat wat hij nu heeft is een mobiele telefoon en die staat in een verkeerde hoek om goed zijn ogen te detecteren.
+- Morse code, dit is echt ideaal voor Eric. makkelijke knoppen. Alleen wel 
+
+
+
+### Eureka
+
+Waarom zou je het wiel opnieuw uitvinden als dit al eerder is gedaan, niet. 
+
+### Mijn idee
+
+
+### Mini iteraties en feedback momentjes.
 
