@@ -1,93 +1,160 @@
-// Dutch word dictionary mapped to key combinations - optimized for casual chatting/commuting
+// Dutch word dictionary mapped to key combinations
 const dictionary = {
-    // Single keys - extremely common words
-    'S': ['sorry', 'station', 'snel'],
-    'T': ['trein', 'tijd', 'tot'],
-    'K': ['kom', 'kan', 'koffie'],
-    'P': ['pas', 'perron', 'probleem'],
-    'W': ['wat', 'wanneer', 'waar'],
-    'H': ['hoi', 'hallo', 'he'],
-    'R': ['reis', 'rustig', 'raar'],
-    'A': ['al', 'aan', 'afspraak'],
-    'O': ['ok', 'oké', 'onderweg'],
-    'E': ['en', 'even', 'echt'],
-    'U': ['uur', 'uit', 'utrecht'],
-    'I': ['ik', 'in', 'is'],
+    // Primary letters - common words
+    "S": ["spel", "stap", "sterk", "schoon"],
+    "B": ["beter", "boom", "blij", "brood"],
+    "V": ["vader", "vraag", "veel", "voelen"],
+    "G": ["goed", "groot", "graag", "gek"],
+    "A": ["altijd", "anders", "auto", "arm"],
+    "T": ["tijd", "toch", "terug", "tegen"],
+    "M": ["mens", "maken", "mooi", "maand"],
+    "K": ["klein", "kant", "kracht", "kom"],
+    "W": ["woord", "waar", "weten", "werk"],
+    "D": ["dag", "doen", "denken", "donker"],
+    "H": ["huis", "hoog", "houden", "hard"],
+    "L": ["leven", "licht", "lang", "lachen"],
     
-    // Two-key combinations - common phrases
-    'IK': ['ik kom', 'ik kan', 'ik kijk'],
-    'ST': ['station', 'straks', 'stil'],
-    'TR': ['trein', 'tram', 'traag'],
-    'KO': ['kom', 'koffie', 'kosten'],
-    'NU': ['nu', 'nummer', 'nuttig'],
-    'WA': ['wat', 'waar', 'wanneer'],
-    'HO': ['hoi', 'hoeveel', 'hopelijk'],
-    'LA': ['later', 'laat', 'langzaam'],
-    'ZI': ['zie', 'zit', 'zijn'],
-    'DA': ['dag', 'dank', 'dat'],
-    'MO': ['moment', 'morgen', 'mogelijk'],
-    'BE': ['ben', 'bedankt', 'bericht'],
-    'ON': ['onderweg', 'ontmoeten', 'onzin'],
-    'OP': ['op tijd', 'openbaar', 'ophalen'],
-    'AF': ['afspraak', 'afgesproken', 'af'],
-    'TE': ['te laat', 'tekst', 'terug'],
-    'OV': ['ov-kaart', 'over', 'overstappen'],
-    'VO': ['voor', 'volgende', 'vol'],
-    'AA': ['aan', 'aankomen', 'aankomst'],
-    'VE': ['vertraging', 'vertrek', 'verder'],
-    'WE': ['weer', 'weekend', 'wel'],
-    'NI': ['niet', 'nieuws', 'niks'],
-    'DO': ['doen', 'doei', 'dokter'],
-    'ZO': ['zo', 'zoiets', 'zondag'],
-    'ME': ['met', 'menu', 'metro'],
-    'LE': ['leuk', 'lekker', 'leven'],
-    'GO': ['goed', 'google', 'goedemorgen'],
-    'GE': ['gezellig', 'gewoon', 'genoeg'],
+    // Secondary letters
+    "R": ["reden", "reis", "rust", "rijk"],
+    "Z": ["zien", "zon", "zorg", "zacht"],
+    "E": ["eigen", "eten", "echt", "enkel"],
+    "N": ["nieuw", "naam", "nodig", "nat"],
+    "O": ["ook", "open", "ogen", "oud"],
+    "F": ["fiets", "fout", "feest", "fles"],
+    "P": ["plan", "punt", "prijs", "praten"],
+    "J": ["jaar", "jij", "juist", "jas"],
+    "I": ["iets", "idee", "iemand", "ijs"],
+    "U": ["uit", "uren", "uniek", "uitzicht"],
+    "C": ["centrum", "cirkel", "cursus", "code"],
+    "Y": ["yoghurt", "yacht", "yoga", "yes"],
     
-    // Travel and commute related
-    'NS': ['ns', 'ns-app', 'ns-kaart'],
-    'OV': ['ov', 'ov-chipkaart', 'overstap'],
-    'SP': ['spoor', 'spits', 'sprinter'],
-    'IC': ['intercity', 'ica', 'ics'],
-    'VT': ['vertraging', 'vertrek', 'vertrektijd'],
-    'RE': ['reizen', 'reservering', 'retour'],
-    'KA': ['kaartje', 'kaart', 'kassa'],
-    'UU': ['uur', 'utrecht', 'uurtje'],
-    'AM': ['amsterdam', 'amersfoort', 'amstel'],
-    'RO': ['rotterdam', 'route', 'rondje'],
-    'DE': ['den haag', 'delft', 'denk'],
+    // Common combinations
+    "SB": ["sociaal", "simpel", "school", "samen"],
+    "VG": ["vraag", "volgend", "vergeten", "vragen"],
+    "AT": ["altijd", "anders", "actie", "aantrekkelijk"],
+    "MK": ["maken", "mogelijk", "makkelijk", "moeilijk"],
+    "WD": ["woord", "worden", "wedstrijd", "wonder"],
+    "HL": ["helpen", "halen", "herhalen", "heel"],
     
-    // Time expressions
-    'NU': ['nu', 'nu meteen', 'nu al'],
-    'LA': ['later', 'laat', 'laatst'],
-    'ST': ['straks', 'stuk', 'start'],
-    'VA': ['vandaag', 'vanavond', 'vakantie'],
-    'MO': ['morgen', 'moment', 'mooi'],
-    'MI': ['minuut', 'minuten', 'midden'],
-    'UR': ['uur', 'uurtje', 'uren'],
+    // Double tap combinations
+    "SR": ["straat", "stroom", "streng", "straf"],
+    "BZ": ["bezig", "bezorgen", "bijzonder", "bezoek"],
+    "VE": ["veel", "velen", "verder", "verhaal"],
+    "GN": ["gaan", "geen", "groen", "geven"],
+    "AO": ["auto", "auto\'s", "avond", "ongeveer"],
+    "TF": ["telefoon", "trein", "toets", "fout"],
+    "MP": ["probleem", "meenemen", "mogelijk", "proces"],
+    "KJ": ["kijken", "krijgen", "kaartje", "koekje"],
+    "WI": ["winkel", "winter", "wij", "willen"],
+    "DU": ["dus", "duur", "duidelijk", "dubbel"],
+    "HC": ["heerlijk", "hechten", "huiselijk", "centraal"],
+    "LY": ["leuk", "licht", "lekker", "loyaal"],
     
-    // Conversational phrases
-    'BT': ['beetje', 'buiten', 'beter'],
-    'GD': ['goed', 'gedag', 'gedaan'],
-    'KL': ['klaar', 'klinkt', 'klopt'],
-    'ZJ': ['zijn', 'zij', 'zojuist'],
-    'WJ': ['wij', 'wijze', 'wijs'],
-    'JA': ['ja', 'jaar', 'jammer'],
-    'NE': ['nee', 'neem', 'nergens'],
-    'OK': ['oké', 'ok', 'oké dan'],
+    // Common phrases
+    "SV": ["snel vinden", "sinds vandaag", "samen verder"],
+    "BD": ["bijna daar", "begin december", "beide dagen"],
+    "TM": ["tot morgen", "te maken", "te moe"],
+    "KW": ["kom wanneer", "kijk wat", "kies waar"],
+    "DH": ["dank hulp", "door heen", "de hoeveelheid"],
     
-    // Emoji and emotions text equivalents
-    'HA': ['haha', 'hahaha', '😂'],
-    'LO': ['lol', '😄', 'leuk'],
-    'SM': ['smile', '🙂', 'smh'],
-    'KU': ['kusje', 'kus', '😘'],
-    'DU': ['duim', '👍', 'duidelijk'],
+    // Travel related
+    "ST": ["station", "straat", "stad", "stoppen"],
+    "TR": ["trein", "tram", "traag", "traject"],
+    "VT": ["vertrek", "vertraging", "vroeg thuis"],
+    "BU": ["bushalte", "buiten", "buitenland"],
+    "RE": ["reis", "retour", "reservering", "regelen"],
+    
+    // Common expressions
+    "GD": ["goedendag", "goedkoop", "gedaan", "gedacht"],
+    "BT": ["beetje", "beter", "betalen", "betekenis"],
+    "HZ": ["huis", "huizen", "hetzelfde", "helemaal"],
+    "WR": ["waar", "waarom", "waarschijnlijk", "waard"],
     
     // Chat abbreviations
-    'FF': ['ff', 'even', 'effetjes'],
-    'IDD': ['idd', 'inderdaad', 'iedereen'],
-    'IDK': ['idk', 'ik weet niet', 'ik denk'],
-    'OMG': ['omg', 'oh mijn god', 'ongelooflijk'],
-    'BTW': ['btw', 'by the way', 'tussen haakjes'],
-    'TMI': ['tmi', 'teveel info', 'te veel']
-};
+    "FF": ["ff", "even", "effetjes"],
+    "IDD": ["idd", "inderdaad", "iedereen"],
+    "OK": ["oké", "ok", "okee"],
+    "NP": ["geen probleem", "no problem", "nee probleem"],
+    
+    // Emojis
+    "HA": ["😄", "haha", "hahaha"],
+    "SM": ["🙂", "smile", "smiley"],
+    "KS": ["😘", "kus", "kusje"],
+    "DU": ["👍", "duim", "duimpje"],
+
+    // Additional combinations with double-tapped keys
+    "ER": ["eerste", "eerlijk", "ervaring", "er is"],
+    "ZO": ["zoals", "zoeken", "zondag", "zorgen"],
+    "NE": ["nee", "nemen", "nergens", "netjes"],
+    "JI": ["jij", "jijzelf", "jij bent", "jij kan"],
+    "PO": ["post", "politie", "positief", "portret"],
+    "CU": ["cultuur", "cursus", "curieus", "cultureel"],
+    
+    // Three letter combinations
+    "STR": ["straat", "stroom", "strand", "streng"],
+    "VER": ["verder", "verhaal", "vergeten", "verkeer"],
+    "BEL": ["belangrijk", "belang", "bellen", "beleven"],
+    "WAT": ["water", "wat is", "wat een", "wat ben"],
+    "HOE": ["hoeveel", "hoe laat", "hoewel", "hoezo"],
+    
+    // Mixed primary/secondary combinations
+    "SW": ["samenwerken", "switch", "swing", "sweater"],
+    "RD": ["reden", "redden", "rijden", "rood"],
+    "ZT": ["zitten", "zaterdag", "zoet", "zetten"],
+    "ES": ["eerst", "espresso", "eenvoudig", "essentieel"],
+    "NV": ["niveau", "november", "nieuwe", "nooit vergeten"],
+    
+    // New combinations for double-tap letters
+    "RE": ["reis", "regel", "regen", "rechtdoor"],
+    "ZA": ["zakelijk", "zacht", "zaterdag", "zaken"],
+    "EV": ["even", "eventueel", "evenwicht", "evaluatie"],
+    "NW": ["nieuw", "naar", "nogmaals", "nooit"],
+    "OG": ["ogen", "ook goed", "ongeluk", "ongeveer"],
+    "FA": ["familie", "favorieten", "fantastisch", "fase"],
+    "PL": ["plaats", "plezier", "plan", "plein"],
+    "JU": ["juist", "juni", "jullie", "jury"],
+    "ID": ["idee", "identiteit", "ieder", "idioot"],
+    "UI": ["uit", "uitleg", "uitstekend", "uitkomst"],
+    "CO": ["corona", "contact", "complex", "compleet"],
+    "YO": ["yoghurt", "yoga", "youtube", "york"],
+    
+    // Frequently used phrases
+    "IB": ["ik ben", "ik blijf", "ik bedoel", "ik begrijp"],
+    "HV": ["het is", "het voelt", "het verschil", "hebben"],
+    "DM": ["dank je", "dank u", "dankjewel", "dankumiddel"],
+    "WZ": ["weet je", "wij zijn", "wij zullen", "waarschijnlijk"],
+    "KN": ["kan niet", "kan nu", "kom nu", "kom naar"],
+    
+    // Travel and commute related combinations
+    "NST": ["ns trein", "naar station", "ns ticket", "ns tijd"],
+    "OVK": ["ov-kaart", "ov-chipkaart", "openbaar vervoer", "overstappen"],
+    "SPR": ["sprinter", "spoorweg", "spoor", "springen"],
+    "ICT": ["intercity trein", "ict", "ich", "ictus"],
+    
+    // Time expressions with double-tapped keys
+    "NUW": ["nu", "nu weer", "nu wel", "nu weet ik"],
+    "LAT": ["later", "laatste", "late tijd", "laten"],
+    "VRO": ["vroeg", "vroeger", "vrolijk", "vragen over"],
+    "MOR": ["morgen", "morgenvroeg", "morgenavond", "morgennamiddag"],
+    "AVZ": ["avond", "avondeten", "avondzorg", "avondzon"],
+    
+    // Chat shortcuts with double-tap
+    "BDZ": ["bedankt", "betekenis", "badzout", "bedanken"],
+    "SMS": ["sms", "sms\'en", "sms-bericht", "samensmeden"],
+    "THX": ["thanks", "thanx", "thx", "tx"],
+    "LMW": ["laat me weten", "laat maar weten", "laat mij weten"],
+    "KMN": ["kom naar", "komen", "kom nu", "kom morgen"],
+    
+    // Completions with mixed primary and secondary keys
+    "BER": ["bericht", "bereid", "bergen", "beroep"],
+    "VOE": ["voelen", "voet", "voedsel", "voetbal"],
+    "GEF": ["gefeliciteerd", "gefeest", "gefixt", "gefrustreerd"],
+    "AUT": ["auto", "autoriteit", "authentiek", "auteur"],
+    
+    // Special uses of double-tapped keys
+    "TFC": ["traffic", "te factureren", "te factureren code", "traffic control"],
+    "MPJ": ["mijn project", "mijn planning", "mijn pijn", "mijn plaats"],
+    "BWI": ["binnenkort", "bewijs", "bewoner", "bewegen in"],
+    "DHC": ["de hoeveelheid", "de handel", "de hoogte", "de huurcontract"],
+    "LYO": ["layout", "loyaal", "leyo", "loyaliteit"]
+}

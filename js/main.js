@@ -1,36 +1,54 @@
 document.addEventListener('DOMContentLoaded', function() {
     const stenographKeyboard = document.getElementById('stenographKeyboard');
     const fullKeyboard = document.getElementById('fullKeyboard');
+    const symbolsKeyboard = document.getElementById('symbolsKeyboard');
     const suggestions = document.getElementById('suggestions');
     const output = document.getElementById('output');
     const enterBtn = document.getElementById('enterBtn');
-    const spaceBtn = document.getElementById('spaceBtn');
     const backspaceBtn = document.getElementById('backspaceBtn');
     const clearBtn = document.getElementById('clearBtn');
     const wordDeleteBtn = document.getElementById('wordDeleteBtn');
     const stenographTab = document.getElementById('stenographTab');
     const fullKeyboardTab = document.getElementById('fullKeyboardTab');
+    const symbolsTab = document.getElementById('symbolsTab');
     const infoToggle = document.getElementById('infoToggle');
     const infoPanel = document.getElementById('infoPanel');
+    const keyboardToggleBtn = document.getElementById('keyboardToggleBtn');
+    const keyboardModeIndicator = document.getElementById('keyboardModeIndicator');
     
     let selectedKeys = [];
     let activeKeyboard = 'stenograph';
+    let isSecondaryMode = false; // Track if we're in secondary mode across all keyboards
     
     // Tab switching functionality
     stenographTab.addEventListener('click', () => {
         stenographTab.classList.add('active');
         fullKeyboardTab.classList.remove('active');
+        symbolsTab.classList.remove('active');
         stenographKeyboard.style.display = 'grid';
         fullKeyboard.style.display = 'none';
+        symbolsKeyboard.style.display = 'none';
         activeKeyboard = 'stenograph';
     });
     
     fullKeyboardTab.addEventListener('click', () => {
         fullKeyboardTab.classList.add('active');
         stenographTab.classList.remove('active');
+        symbolsTab.classList.remove('active');
         fullKeyboard.style.display = 'grid';
         stenographKeyboard.style.display = 'none';
+        symbolsKeyboard.style.display = 'none';
         activeKeyboard = 'full';
+    });
+    
+    symbolsTab.addEventListener('click', () => {
+        symbolsTab.classList.add('active');
+        stenographTab.classList.remove('active');
+        fullKeyboardTab.classList.remove('active');
+        symbolsKeyboard.style.display = 'grid';
+        stenographKeyboard.style.display = 'none';
+        fullKeyboard.style.display = 'none';
+        activeKeyboard = 'symbols';
     });
     
     // Info panel toggle
@@ -47,8 +65,15 @@ document.addEventListener('DOMContentLoaded', function() {
         // Clear active states
         const keys = stenographKeyboard.querySelectorAll('.key');
         keys.forEach(key => {
-            const keyValue = key.dataset.key;
-            key.classList.toggle('active', selectedKeys.includes(keyValue));
+            const primaryKey = key.dataset.primary;
+            const secondaryKey = key.dataset.secondary;
+            
+            // Determine if this key is selected (either primary or secondary mode)
+            const isPrimarySelected = selectedKeys.includes(primaryKey);
+            const isSecondarySelected = selectedKeys.includes(secondaryKey);
+            
+            key.classList.toggle('primary-selected', isPrimarySelected);
+            key.classList.toggle('secondary-selected', isSecondarySelected);
         });
         
         // Generate suggestions
@@ -59,7 +84,7 @@ document.addEventListener('DOMContentLoaded', function() {
         suggestions.innerHTML = '';
         if (selectedKeys.length === 0) return;
         
-        // Sort keys to match dictionary keys
+        // Sort keys alphabetically to match dictionary keys
         const sortedKeys = [...selectedKeys].sort().join('');
         
         // Find words that match the current key combination
@@ -83,7 +108,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Add the direct word formed by the keys in sequence (not sorted)
         const directWord = selectedKeys.join('').toLowerCase();
         if (directWord.length > 0) {
-            // Add it as the first suggestion
+            // Add it as the first suggestion with a different style
             words = [directWord, ...words];
         }
         
@@ -102,7 +127,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     function appendWord(word) {
         const currentText = output.value;
-        if (currentText.length > 0 && !currentText.endsWith(' ')) {
+        if (currentText.length > 0 && !currentText.endsWith(' ') && !currentText.endsWith('\n')) {
             output.value += ' ' + word;
         } else {
             output.value += word;
@@ -111,42 +136,105 @@ document.addEventListener('DOMContentLoaded', function() {
     
     function clearSelectedKeys() {
         selectedKeys = [];
+        // Reset any double-tapped keys to primary state
+        const keys = stenographKeyboard.querySelectorAll('.key');
+        keys.forEach(key => {
+            key.classList.remove('double-tapped');
+        });
         updateKeyboard();
     }
     
-    // Event listeners
+    // Function to toggle between primary and secondary modes
+    function toggleKeyboardMode() {
+        isSecondaryMode = !isSecondaryMode;
+        
+        // Update toggle button appearance
+        keyboardToggleBtn.classList.toggle('secondary-mode', isSecondaryMode);
+        
+        // Update the mode indicator
+        keyboardModeIndicator.textContent = isSecondaryMode ? 'Secondary Mode' : 'Primary Mode';
+        keyboardModeIndicator.classList.toggle('secondary-mode', isSecondaryMode);
+        
+        // Update keyboard appearance to reflect the current mode
+        stenographKeyboard.classList.toggle('secondary-mode', isSecondaryMode);
+        fullKeyboard.classList.toggle('secondary-mode', isSecondaryMode);
+        symbolsKeyboard.classList.toggle('secondary-mode', isSecondaryMode);
+        
+        // Remove all double-tapped classes as they're no longer needed
+        const allKeys = document.querySelectorAll('.key');
+        allKeys.forEach(key => {
+            key.classList.remove('double-tapped');
+        });
+    }
+    
+    // Add event listener for the toggle button
+    keyboardToggleBtn.addEventListener('click', toggleKeyboardMode);
+    
+    // Helper function to add a key to selectedKeys (without toggling)
+    function addKeySelection(key) {
+        // Only add the key if it's not already in the array
+        if (!selectedKeys.includes(key)) {
+            selectedKeys.push(key);
+            return true; // Key was added
+        }
+        return false; // Key was already there
+    }
+    
+    // Handle key selection for stenograph keyboard
     stenographKeyboard.addEventListener('click', event => {
-        const key = event.target;
-        if (key.classList.contains('key')) {
-            const keyValue = key.dataset.key;
-            
-            // Toggle key selection
-            if (selectedKeys.includes(keyValue)) {
-                selectedKeys = selectedKeys.filter(k => k !== keyValue);
-            } else {
-                selectedKeys.push(keyValue);
-            }
-            
-            updateKeyboard();
+        const key = event.target.closest('.key');
+        if (!key) return;
+        
+        const primaryKey = key.dataset.primary;
+        const secondaryKey = key.dataset.secondary;
+        
+        // Add either primary or secondary key based on current mode
+        if (isSecondaryMode) {
+            addKeySelection(secondaryKey);
+        } else {
+            addKeySelection(primaryKey);
         }
+        
+        updateKeyboard();
     });
     
+    // Full keyboard functionality
     fullKeyboard.addEventListener('click', event => {
-        const key = event.target;
-        if (key.classList.contains('type-key')) {
-            const charValue = key.dataset.char;
-            
-            // Add to selected keys to get suggestions
-            if (charValue.match(/[A-Za-z]/)) {
-                selectedKeys.push(charValue.toUpperCase());
-                updateSuggestions();
-            } else {
-                // For non-letters (space, punctuation, etc.), add directly to output
-                output.value += charValue;
-            }
+        const key = event.target.closest('.key');
+        if (!key) return;
+        
+        const charValue = key.dataset.char;
+        
+        // Add letters to selected keys to get suggestions
+        if (charValue.match(/[A-Za-z]/)) {
+            // Only add if it's not already in the array
+            addKeySelection(charValue.toUpperCase());
+            updateSuggestions();
+        } else {
+            // For non-letters (space, punctuation, etc.), add directly to output
+            output.value += charValue;
         }
     });
     
+    // Symbols keyboard functionality
+    symbolsKeyboard.addEventListener('click', event => {
+        const key = event.target.closest('.key');
+        if (!key) return;
+        
+        const primaryKey = key.dataset.primary;
+        const secondaryKey = key.dataset.secondary;
+        
+        // Add either primary or secondary key based on current mode
+        if (isSecondaryMode) {
+            addKeySelection(secondaryKey);
+        } else {
+            addKeySelection(primaryKey);
+        }
+        
+        updateKeyboard();
+    });
+    
+    // Control button handlers
     enterBtn.addEventListener('click', () => {
         // If there's a current word in suggestions (first one, the green one)
         if (selectedKeys.length > 0) {
@@ -159,22 +247,17 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    spaceBtn.addEventListener('click', () => {
-        // If there are selected keys, add the current word + space
-        if (selectedKeys.length > 0) {
-            const directWord = selectedKeys.join('').toLowerCase();
-            appendWord(directWord);
-            clearSelectedKeys();
-        } else {
-            // If no word is being composed, just add a space
-            output.value += ' ';
-        }
-    });
-    
     backspaceBtn.addEventListener('click', () => {
         if (selectedKeys.length > 0) {
+            // Remove the last selected key
             selectedKeys.pop();
             updateKeyboard();
+        } else {
+            // If no keys selected, delete the last character from the output
+            const text = output.value;
+            if (text.length > 0) {
+                output.value = text.substring(0, text.length - 1);
+            }
         }
     });
     

@@ -23,26 +23,6 @@ body {
     padding: 10px;
 }
 
-@media (max-width: 768px) {
-    .container {
-        max-width: 100%;
-        padding: 5px;
-    }
-    
-    .key {
-        font-size: 16px;
-    }
-    
-    .full-keyboard .key {
-        font-size: 12px;
-    }
-    
-    .suggestion {
-        font-size: 18px;
-        padding: 10px 15px;
-    }
-}
-
 .output-container {
     width: 100%;
     display: flex;
@@ -163,6 +143,15 @@ body {
 
 .keyboard-container {
     width: 100%;
+    overflow-x: hidden; /* Prevent horizontal scrolling */
+}
+
+/* Keyboard layouts */
+.keyboard, .symbols-keyboard {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    width: 100%;
 }
 
 .full-keyboard {
@@ -172,30 +161,10 @@ body {
     width: 100%;
 }
 
-.full-keyboard .key {
-    font-size: 14px;
-    padding: 5px;
-    height: 40px; /* Increased height */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.space-key {
-    grid-column: span 10;
-    font-size: 14px;
-    height: 40px; /* Consistent height */
-}
-
-.keyboard {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 10px;
-    width: 100%;
-}
-
+/* Key styling */
 .key {
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
     font-size: 18px;
@@ -212,6 +181,49 @@ body {
     height: 100%; /* Full height of grid cell */
     min-height: 60px; /* Minimum height */
     min-width: 60px; /* Minimum width */
+    position: relative;
+}
+
+.full-keyboard .key {
+    font-size: 14px;
+    padding: 5px;
+    height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.space-key {
+    grid-column: span 10;
+    font-size: 14px;
+    height: 40px;
+}
+
+.key span:first-child {
+    font-size: 28px;
+    transition: font-size 0.3s ease;
+}
+
+.key .secondary {
+    font-size: 14px;
+    color: #666;
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+    transition: all 0.3s ease;
+}
+
+.key:active {
+    transform: translateY(4px);
+    box-shadow: 0 0 0 #999;
+}
+
+.key.primary-selected {
+    border: 2px solid #0066cc;
+}
+
+.key.secondary-selected {
+    border: 2px solid #ff8c00;
 }
 
 .key:active, .key.active {
@@ -220,6 +232,7 @@ body {
     background-color: #ddd;
 }
 
+/* Control buttons */
 .controls {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -244,7 +257,7 @@ body {
     font-size: 14px;
     font-weight: bold;
     box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-    min-height: 60px; /* Consistent with key size */
+    min-height: 60px;
 }
 
 .control-btn:hover {
@@ -259,10 +272,287 @@ body {
     background-color: #d32f2f;
 }
 
+/* Toggle button styling */
+.control-btn.toggle {
+    background-color: #8e44ad;
+}
+
+.control-btn.toggle:hover {
+    background-color: #732d91;
+}
+
+.control-btn.toggle.secondary-mode {
+    background-color: #ff8c00;
+}
+
+.control-btn.toggle.secondary-mode:hover {
+    background-color: #e07e00;
+}
+
+/* Info panel */
 .info {
     margin-top: 20px;
     padding: 15px;
     background-color: #fff3cd;
     border-left: 4px solid #ffc107;
     border-radius: 4px;
+}
+
+/* Mode indicators */
+.keyboard-mode-indicator {
+    text-align: center;
+    padding: 8px;
+    margin: 10px 0;
+    background-color: #e9f7fe;
+    border: 1px solid #0056b3;
+    border-radius: 4px;
+    font-weight: bold;
+}
+
+.keyboard-mode-indicator.secondary-mode {
+    background-color: #fff3cd;
+    border-color: #ff8c00;
+}
+
+/* Secondary mode for all keyboard types */
+.keyboard.secondary-mode .key .secondary,
+.full-keyboard.secondary-mode .key .secondary,
+.symbols-keyboard.secondary-mode .key .secondary {
+    font-size: 28px;
+    color: #000;
+    position: static;
+    margin-top: -5px;
+}
+
+.keyboard.secondary-mode .key span:first-child,
+.full-keyboard.secondary-mode .key span:first-child,
+.symbols-keyboard.secondary-mode .key span:first-child {
+    font-size: 14px;
+}
+
+/* Media queries for responsive design */
+@media (max-width: 768px) {
+    .container {
+        max-width: 100%;
+        padding: 5px;
+    }
+    
+    .key {
+        font-size: 16px;
+    }
+    
+    .full-keyboard .key {
+        font-size: 12px;
+    }
+    
+    .suggestion {
+        font-size: 18px;
+        padding: 10px 15px;
+    }
+}
+
+@media (max-width: 480px) {
+    .full-keyboard {
+        gap: 2px;
+    }
+    
+    .full-keyboard .key {
+        font-size: 12px;
+        padding: 2px;
+        height: 30px;
+        min-width: auto;
+        min-height: auto;
+    }
+    
+    .space-key {
+        height: 30px;
+    }
+    
+    .keyboard .key, 
+    .symbols-keyboard .key {
+        min-height: 40px;
+        min-width: 40px;
+    }
+    
+    .key span:first-child {
+        font-size: 20px;
+    }
+    
+    .key .secondary {
+        font-size: 10px;
+    }
+    
+    .control-btn {
+        min-height: 40px;
+        font-size: 12px;
+    }
+    
+    .symbols-keyboard {
+        gap: 5px;
+    }
+}
+
+@media (max-width: 375px) {
+    .full-keyboard .key {
+        font-size: 10px;
+        padding: 1px;
+        height: 25px;
+    }
+    
+    .space-key {
+        height: 25px;
+    }
+    
+    .keyboard .key,
+    .symbols-keyboard .key {
+        min-height: 30px;
+        min-width: 30px;
+    }
+    
+    .key span:first-child {
+        font-size: 16px;
+    }
+    
+    .key .secondary {
+        font-size: 8px;
+    }
+    
+    .control-btn {
+        min-height: 30px;
+        font-size: 10px;
+        padding: 3px;
+    }
+    
+    .container {
+        padding: 2px;
+    }
+    
+    .controls {
+        gap: 5px;
+    }
+    
+    .symbols-keyboard {
+        gap: 3px;
+    }
+}
+
+
+
+/* Updated key styles with bigger letters and click effects */
+
+/* Increase the size of primary letters */
+.key span:first-child {
+    font-size: 32px; /* Increased from 28px */
+    transition: font-size 0.3s ease, color 0.2s ease;
+}
+
+/* Increase the size of secondary letters */
+.key .secondary {
+    font-size: 18px; /* Increased from 14px */
+    color: #666;
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+    transition: all 0.3s ease;
+}
+
+/* Make letters in full keyboard bigger */
+.full-keyboard .key {
+    font-size: 18px; /* Increased from 14px */
+    padding: 5px;
+    height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Selected key styling */
+.key.primary-selected {
+    border: 3px solid #0066cc; /* Thicker border */
+    background-color: #e6f2ff; /* Light blue background */
+}
+
+.key.primary-selected span:first-child {
+    color: #0066cc; /* Blue text color */
+    font-weight: bold;
+}
+
+.key.secondary-selected {
+    border: 3px solid #ff8c00; /* Thicker border */
+    background-color: #fff3e0; /* Light orange background */
+}
+
+.key.secondary-selected .secondary {
+    color: #ff8c00; /* Orange text color */
+    font-weight: bold;
+}
+
+/* Animation for key press */
+.key:active {
+    transform: translateY(4px);
+    box-shadow: 0 0 0 #999;
+    background-color: #f0f0f0;
+}
+
+.key:active span:first-child {
+    color: #333; /* Darker color when pressed */
+}
+
+/* Secondary mode styling */
+.keyboard.secondary-mode .key .secondary,
+.full-keyboard.secondary-mode .key .secondary,
+.symbols-keyboard.secondary-mode .key .secondary {
+    font-size: 32px; /* Match primary size */
+    color: #000;
+    position: static;
+    margin-top: -5px;
+}
+
+.keyboard.secondary-mode .key span:first-child,
+.full-keyboard.secondary-mode .key span:first-child,
+.symbols-keyboard.secondary-mode .key span:first-child {
+    font-size: 18px; /* Match secondary size */
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .key span:first-child {
+        font-size: 28px;
+    }
+    
+    .key .secondary {
+        font-size: 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .key span:first-child {
+        font-size: 24px;
+    }
+    
+    .key .secondary {
+        font-size: 14px;
+    }
+    
+    .keyboard.secondary-mode .key .secondary,
+    .full-keyboard.secondary-mode .key .secondary,
+    .symbols-keyboard.secondary-mode .key .secondary {
+        font-size: 24px;
+    }
+}
+
+@media (max-width: 375px) {
+    .key span:first-child {
+        font-size: 20px;
+    }
+    
+    .key .secondary {
+        font-size: 12px;
+    }
+    
+    .keyboard.secondary-mode .key .secondary,
+    .full-keyboard.secondary-mode .key .secondary,
+    .symbols-keyboard.secondary-mode .key .secondary {
+        font-size: 20px;
+    }
 }

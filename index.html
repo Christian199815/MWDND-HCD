@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Eric of het groot toetsenbord</title>
-
+    <title>Dutch Stenograph Keyboard</title>
     <link rel="stylesheet" href="./css/styles.css">
 </head>
 <body>
@@ -20,31 +19,83 @@
         
         <div class="controls">
             <button class="control-btn" id="enterBtn">Enter</button>
-            <button class="control-btn" id="spaceBtn">Space</button>
-            <button class="control-btn" id="backspaceBtn">Backspace Key</button>
-            <button class="control-btn clear" id="clearBtn">Clear Keys</button>
+            <button class="control-btn" id="backspaceBtn">Backspace</button>
+            <button class="control-btn clear" id="clearBtn">Clear</button>
+            <!-- New toggle button -->
+            <button class="control-btn toggle" id="keyboardToggleBtn">Toggle<br>Mode</button>
         </div>
+
+        <div class="keyboard-mode-indicator" id="keyboardModeIndicator">Primary Mode</div>
         
         <div class="tabs">
             <button class="tab-btn active" id="stenographTab">Stenograph</button>
             <button class="tab-btn" id="fullKeyboardTab">Full Alphabet</button>
+            <button class="tab-btn" id="symbolsTab">Symbols & Numbers</button>
             <button class="info-toggle" id="infoToggle">?</button>
         </div>
         
         <div class="keyboard-container">
             <div class="keyboard" id="stenographKeyboard">
-                <div class="key" data-key="S">S</div>
-                <div class="key" data-key="T">T</div>
-                <div class="key" data-key="K">K</div>
-                <div class="key" data-key="P">P</div>
-                <div class="key" data-key="W">W</div>
-                <div class="key" data-key="H">H</div>
-                <div class="key" data-key="R">R</div>
-                <div class="key" data-key="A">A</div>
-                <div class="key" data-key="O">O</div>
-                <div class="key" data-key="E">E</div>
-                <div class="key" data-key="U">U</div>
-                <div class="key" data-key="I">I</div>
+                <div class="key" data-primary="S" data-secondary="R">
+                    <span>S</span>
+                    <span class="secondary">R</span>
+                    <div class="mode-indicator"></div>
+                </div>
+                <div class="key" data-primary="B" data-secondary="Z">
+                    <span>B</span>
+                    <span class="secondary">Z</span>
+                    <div class="mode-indicator"></div>
+                </div>
+                <div class="key" data-primary="V" data-secondary="E">
+                    <span>V</span>
+                    <span class="secondary">E</span>
+                    <div class="mode-indicator"></div>
+                </div>
+                <div class="key" data-primary="G" data-secondary="N">
+                    <span>G</span>
+                    <span class="secondary">N</span>
+                    <div class="mode-indicator"></div>
+                </div>
+                <div class="key" data-primary="A" data-secondary="O">
+                    <span>A</span>
+                    <span class="secondary">O</span>
+                    <div class="mode-indicator"></div>
+                </div>
+                <div class="key" data-primary="T" data-secondary="F">
+                    <span>T</span>
+                    <span class="secondary">F</span>
+                    <div class="mode-indicator"></div>
+                </div>
+                <div class="key" data-primary="M" data-secondary="P">
+                    <span>M</span>
+                    <span class="secondary">P</span>
+                    <div class="mode-indicator"></div>
+                </div>
+                <div class="key" data-primary="K" data-secondary="J">
+                    <span>K</span>
+                    <span class="secondary">J</span>
+                    <div class="mode-indicator"></div>
+                </div>
+                <div class="key" data-primary="W" data-secondary="I">
+                    <span>W</span>
+                    <span class="secondary">I</span>
+                    <div class="mode-indicator"></div>
+                </div>
+                <div class="key" data-primary="D" data-secondary="U">
+                    <span>D</span>
+                    <span class="secondary">U</span>
+                    <div class="mode-indicator"></div>
+                </div>
+                <div class="key" data-primary="H" data-secondary="C">
+                    <span>H</span>
+                    <span class="secondary">C</span>
+                    <div class="mode-indicator"></div>
+                </div>
+                <div class="key" data-primary="L" data-secondary="Y">
+                    <span>L</span>
+                    <span class="secondary">Y</span>
+                    <div class="mode-indicator"></div>
+                </div>
             </div>
             
             <div class="full-keyboard" id="fullKeyboard" style="display: none;">
@@ -99,18 +150,105 @@
                 <!-- Fifth row (space) -->
                 <div class="key type-key space-key" data-char=" ">Space</div>
             </div>
+            
+            <div class="symbols-keyboard" id="symbolsKeyboard" style="display: none;">
+                <div class="key" data-primary="1" data-secondary="!" >
+                    <span>1</span>
+                    <span class="secondary">!</span>
+                    <div class="mode-indicator"></div>
+                </div>
+                <div class="key" data-primary="2" data-secondary="@" >
+                    <span>2</span>
+                    <span class="secondary">@</span>
+                    <div class="mode-indicator"></div>
+                </div>
+                <div class="key" data-primary="3" data-secondary="#" >
+                    <span>3</span>
+                    <span class="secondary">#</span>
+                    <div class="mode-indicator"></div>
+                </div>
+                <div class="key" data-primary="4" data-secondary="$" >
+                    <span>4</span>
+                    <span class="secondary">$</span>
+                    <div class="mode-indicator"></div>
+                </div>
+                <div class="key" data-primary="5" data-secondary="%" >
+                    <span>5</span>
+                    <span class="secondary">%</span>
+                    <div class="mode-indicator"></div>
+                </div>
+                <div class="key" data-primary="6" data-secondary="^" >
+                    <span>6</span>
+                    <span class="secondary">^</span>
+                    <div class="mode-indicator"></div>
+                </div>
+                <div class="key" data-primary="7" data-secondary="&" >
+                    <span>7</span>
+                    <span class="secondary">&</span>
+                    <div class="mode-indicator"></div>
+                </div>
+                <div class="key" data-primary="8" data-secondary="*" >
+                    <span>8</span>
+                    <span class="secondary">*</span>
+                    <div class="mode-indicator"></div>
+                </div>
+                <div class="key" data-primary="9" data-secondary="(" >
+                    <span>9</span>
+                    <span class="secondary">(</span>
+                    <div class="mode-indicator"></div>
+                </div>
+                <div class="key" data-primary="0" data-secondary=")" >
+                    <span>0</span>
+                    <span class="secondary">)</span>
+                    <div class="mode-indicator"></div>
+                </div>
+                <div class="key" data-primary="." data-secondary=":" >
+                    <span>.</span>
+                    <span class="secondary">:</span>
+                    <div class="mode-indicator"></div>
+                </div>
+                <div class="key" data-primary="," data-secondary=";" >
+                    <span>,</span>
+                    <span class="secondary">;</span>
+                    <div class="mode-indicator"></div>
+                </div>
+                <div class="key" data-primary="?" data-secondary="¿" >
+                    <span>?</span>
+                    <span class="secondary">¿</span>
+                    <div class="mode-indicator"></div>
+                </div>
+                <div class="key" data-primary="!" data-secondary="¡" >
+                    <span>!</span>
+                    <span class="secondary">¡</span>
+                    <div class="mode-indicator"></div>
+                </div>
+                <div class="key" data-primary="-" data-secondary="_" >
+                    <span>-</span>
+                    <span class="secondary">_</span>
+                    <div class="mode-indicator"></div>
+                </div>
+                <div class="key" data-primary="+" data-secondary="=" >
+                    <span>+</span>
+                    <span class="secondary">=</span>
+                    <div class="mode-indicator"></div>
+                </div>
+            </div>
         </div>
         
         <div class="info" id="infoPanel" style="display: none;">
             <h3>Hoe te gebruiken:</h3>
-            <p>1. Klik op toetsen om ze te selecteren in de volgorde waarin je wilt typen</p>
-            <p>2. Terwijl je toetsen selecteert, verschijnen er woordsuggesties</p>
-            <p>3. De <strong style="color: #28a745;">groene suggestie</strong> toont het directe woord dat wordt gevormd door je toetsencombinatie</p>
-            <p>4. Klik op een suggestie om deze aan je tekst toe te voegen</p>
-            <p>5. Gebruik "Backspace-toets" om de laatst geselecteerde toets te verwijderen</p>
-            <p>6. Gebruik "Toetsen Wissen" om alle geselecteerde toetsen te wissen</p>
-            <p>7. Gebruik "Woord Verwijderen" om het laatste woord uit je tekst te verwijderen</p>
-            <p>8. Schakel over naar "Volledig Alfabet" om direct individuele letters te typen</p>
+            <p>1. Klik op toetsen om ze te selecteren</p>
+            <p>2. Dubbeltik op een toets om naar de secundaire letter te schakelen</p>
+            <p>3. Dubbeltik op een cijfer of symbool om het dubbel toe te voegen</p>
+            <p>4. Geselecteerde primaire letters hebben een <span style="color: #0066cc;">blauwe rand</span></p>
+            <p>5. Geselecteerde secundaire letters hebben een <span style="color: #ff8c00;">oranje rand</span></p>
+            <p>6. Gebruik "Backspace" om de laatst geselecteerde toets te verwijderen</p>
+            <p>7. Gebruik "Clear" om alle geselecteerde toetsen te wissen</p>
+            <p>8. Terwijl je toetsen selecteert, verschijnen er woordsuggesties</p>
+            <p>9. De <strong style="color: #28a745;">groene suggestie</strong> toont het directe woord dat wordt gevormd door je toetsencombinatie</p>
+            <p>10. Klik op een suggestie om deze aan je tekst toe te voegen</p>
+            <p>11. Gebruik "Delete Word" om het laatste woord uit je tekst te verwijderen</p>
+            <p>12. Schakel tussen Stenograaf, Volledig Alfabet en Symbolen &amp; Nummers met de tabs</p>
         </div>
     </div>
 
