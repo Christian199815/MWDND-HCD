@@ -1,325 +1,332 @@
 document.addEventListener('DOMContentLoaded', function() {
+    // Debug toggle and logging function
+    const DEBUG = false; // Set to true to enable debugging
+
+    function log(...args) {
+        if (DEBUG) console.log('[Stenograph Keyboard]', ...args);
+    }
+    
+    // First check if the elements exist
+    checkElements();
+    
+    // Set number of suggestions to show
+    let maxSuggestions = 3; // Configurable number of suggestions to display
+    
+    // Add dictionary debugging
+    function checkDictionary() {
+        if (typeof dictionary === 'undefined') {
+            console.error('Dictionary is not defined');
+            return;
+        }
+        
+        log('Dictionary type:', typeof dictionary);
+        log('Dictionary keys count:', Object.keys(dictionary).length);
+        log('Sample dictionary entries:');
+        
+        // Print first 5 entries
+        let count = 0;
+        for (const key in dictionary) {
+            if (count < 5) {
+                log(`  "${key}": ${JSON.stringify(dictionary[key])}`);
+                count++;
+            } else {
+                break;
+            }
+        }
+        
+        // Check if specific keys exist
+        const keysToCheck = ['BO', 'A', 'DE', 'HET', 'VAN'];
+        keysToCheck.forEach(key => {
+            log(`'${key}' exists in dictionary:`, key in dictionary);
+            if (key in dictionary) {
+                log(`Value for '${key}':`, dictionary[key]);
+            }
+        });
+    }
+    
+    // Check style of suggestions
+    function checkSuggestionsStyle() {
+        const sugg = document.getElementById('suggestions');
+        if (!sugg) {
+            console.error('Suggestions element not found');
+            return;
+        }
+        
+        const style = window.getComputedStyle(sugg);
+        log('Suggestions element styles:');
+        log('  Display:', style.display);
+        log('  Visibility:', style.visibility);
+        log('  Height:', style.height);
+        log('  Width:', style.width);
+        
+        // Force display to be block or flex
+        sugg.style.display = 'flex';
+        sugg.style.visibility = 'visible';
+    }
+    
+    // Call our diagnostic functions
+    checkDictionary();
+    setTimeout(checkSuggestionsStyle, 500);
+    
+    // Make sure the dictionary is defined before proceeding
+    if (typeof dictionary === 'undefined') {
+        console.error('Error: Dictionary is not defined. Please check that dictionary.js is loaded before main.js');
+        
+        // Create a fallback dictionary to prevent errors
+        window.dictionary = {
+            'TEST': ['test', 'testing'],
+            'BO': ['boven', 'boot', 'boom']  // Test case
+        };
+    } else {
+        log('Dictionary loaded successfully with ' + Object.keys(dictionary).length + ' entries');
+        
+        // Make sure the dictionary is available globally
+        window.dictionary = dictionary;
+    }
+    
     // Safely get DOM elements with null checks
     const getElement = (id) => {
         const element = document.getElementById(id);
-        if (!element) {
-            console.warn(`Element with id "${id}" not found`);
-        }
+        if (!element) console.warn(`Element with id "${id}" not found`);
         return element;
     };
     
-    // Get all required elements with null-safety
-    const stenographKeyboard = getElement('stenographKeyboard');
-    const fullKeyboard = getElement('fullKeyboard');
-    const symbolsKeyboard = getElement('symbolsKeyboard');
-    const suggestions = getElement('suggestions');
-    const output = getElement('output');
-    const enterBtn = getElement('enterBtn');
-    const backspaceBtn = getElement('backspaceBtn');
-    const clearBtn = getElement('clearBtn');
-    const wordDeleteBtn = getElement('wordDeleteBtn');
-    const stenographTab = getElement('stenographTab');
-    const fullKeyboardTab = getElement('fullKeyboardTab');
-    const symbolsTab = getElement('symbolsTab');
-    const infoToggle = getElement('infoToggle');
-    const infoPanel = getElement('infoPanel');
-    const keyboardToggleBtn = getElement('keyboardToggleBtn');
-    const keyboardPopup = getElement('keyboardPopup');
-    const chatContainer = getElement('chatContainer');
-    const messageInput = getElement('messageInput');
-    const sendBtn = getElement('sendBtn');
+    // Random response messages
+    const responseMessages = [
+        "Wat een gaaf toetsenbord zeg!",
+        "Nice bericht! Bevalt het nieuwe keyboard een beetje?",
+        "Zie dat je het nieuwe keyboard gebruikt. Super handig, toch?",
+        "Bericht binnen! Het keyboard werkt blijkbaar top!",
+        "Thanks voor je bericht! Dit keyboard is echt next-level.",
+        "Bericht gezien! Hoe bevalt het nieuwe systeem?",
+        "Chill hoe je dit keyboard gebruikt. Mega efficiënt!",
+        "Got it! Dit keyboard is best verslavend, of niet soms?",
+        "Interessant bericht! Deze tech is echt uniek.",
+        "Top! Ben echt impressed hoe smooth dit keyboard werkt."
+    ];
+    
+    // Get a random response message
+    function getRandomResponse() {
+        const randomIndex = Math.floor(Math.random() * responseMessages.length);
+        return responseMessages[randomIndex];
+    }
+    
+    // Get all required elements
+    const elements = {
+        stenographKeyboard: getElement('stenographKeyboard'),
+        symbolsKeyboard: getElement('symbolsKeyboard'),
+        suggestions: getElement('suggestions'),
+        output: getElement('output'),
+        enterBtn: getElement('enterBtn'),
+        backspaceBtn: getElement('backspaceBtn'),
+        clearBtn: getElement('clearBtn'),
+        wordDeleteBtn: getElement('wordDeleteBtn'),
+        stenographTab: getElement('stenographTab'),
+        symbolsTab: getElement('symbolsTab'),
+        infoToggle: getElement('infoToggle'),
+        infoPanel: getElement('infoPanel'),
+        keyboardToggleBtn: getElement('keyboardToggleBtn'),
+        keyboardPopup: getElement('keyboardPopup'),
+        keyboardHandle: getElement('keyboardHandle'), // Make sure this is defined
+        chatContainer: getElement('chatContainer'),
+        messageInput: getElement('messageInput'),
+        sendBtn: getElement('sendBtn'),
+        closeKeyboardBtn: getElement('closeKeyboardBtn'),
+        sendKeyboardBtn: getElement('sendKeyboardBtn')
+    };
+    
     const popupToggleBtn = document.querySelector('.keyboard-toggle-btn');
-    const keyboardHandle = getElement('keyboardHandle');
     
     let selectedKeys = [];
     let activeKeyboard = 'stenograph';
-    let isSecondaryMode = false;
+    let keyboardMode = 0; // 0 = primary, 1 = secondary, 2 = tertiary
     let touchStartY = 0;
     let touchCurrentY = 0;
     
-    // Popup toggle
-    if (popupToggleBtn) {
-        popupToggleBtn.addEventListener('click', () => {
-            if (keyboardPopup) {
-                keyboardPopup.classList.toggle('active');
-            }
-        });
-    }
-    
-    // Close keyboard when clicking outside but not on control elements
-    document.addEventListener('click', (e) => {
-        // Don't close if clicking on any part of the keyboard or the toggle button
-        if (keyboardPopup && 
-            keyboardPopup.classList.contains('active') && 
-            !keyboardPopup.contains(e.target) && 
-            e.target !== popupToggleBtn) {
-            keyboardPopup.classList.remove('active');
+    // Core functions
+    function toggleKeyboardPopup(show) {
+        if (!elements.keyboardPopup) return;
+        
+        if (show === undefined) {
+            elements.keyboardPopup.classList.toggle('active');
+        } else if (show) {
+            elements.keyboardPopup.classList.add('active');
+        } else {
+            elements.keyboardPopup.classList.remove('active');
         }
-    });
-    
-    // Stop propagation on keyboard elements to prevent closing
-    if (keyboardPopup) {
-        keyboardPopup.addEventListener('click', (e) => {
-            e.stopPropagation();
-        });
     }
     
-    // Drag to close functionality
-    if (keyboardHandle && keyboardPopup) {
-        keyboardHandle.addEventListener('touchstart', (e) => {
-            touchStartY = e.touches[0].clientY;
-        });
+    function switchKeyboardTab(targetTab) {
+        const keyboards = {
+            'stenograph': elements.stenographKeyboard,
+            'symbols': elements.symbolsKeyboard
+        };
         
-        keyboardHandle.addEventListener('touchmove', (e) => {
-            touchCurrentY = e.touches[0].clientY;
-            const diffY = touchCurrentY - touchStartY;
-            
-            if (diffY > 0) { // Dragging down
-                keyboardPopup.style.transform = `translateY(${diffY}px)`;
-            }
-        });
+        const tabs = {
+            'stenograph': elements.stenographTab,
+            'symbols': elements.symbolsTab
+        };
         
-        keyboardHandle.addEventListener('touchend', () => {
-            const diffY = touchCurrentY - touchStartY;
-            
-            if (diffY > 100) { // If dragged more than 100px down
-                keyboardPopup.classList.remove('active');
-            }
-            
-            keyboardPopup.style.transform = '';
-            touchStartY = 0;
-            touchCurrentY = 0;
-        });
+        // Hide all keyboards and deactivate all tabs
+        Object.values(keyboards).forEach(kb => { if (kb) kb.style.display = 'none'; });
+        Object.values(tabs).forEach(tab => { if (tab) tab.classList.remove('active'); });
         
-        // For desktop/mouse users
-        keyboardHandle.addEventListener('mousedown', (e) => {
-            e.preventDefault();
-            let startY = e.clientY;
-            
-            const mouseMove = (e) => {
-                let currentY = e.clientY;
-                let diffY = currentY - startY;
-                
-                if (diffY > 0) {
-                    keyboardPopup.style.transform = `translateY(${diffY}px)`;
-                }
-            };
-            
-            const mouseUp = (e) => {
-                let diffY = e.clientY - startY;
-                
-                if (diffY > 100) {
-                    keyboardPopup.classList.remove('active');
-                }
-                
-                keyboardPopup.style.transform = '';
-                document.removeEventListener('mousemove', mouseMove);
-                document.removeEventListener('mouseup', mouseUp);
-            };
-            
-            document.addEventListener('mousemove', mouseMove);
-            document.addEventListener('mouseup', mouseUp);
-        });
+        // Show the selected keyboard and activate its tab
+        if (keyboards[targetTab]) keyboards[targetTab].style.display = 'grid';
+        if (tabs[targetTab]) tabs[targetTab].classList.add('active');
+        activeKeyboard = targetTab;
     }
     
-    // Send message functionality
-    if (sendBtn && messageInput && chatContainer) {
-        sendBtn.addEventListener('click', () => {
-            const message = messageInput.value.trim();
-            if (message) {
-                addMessage(message, 'sent');
-                messageInput.value = '';
-                
-                // Simulate reply after 1 second
-                setTimeout(() => {
-                    addMessage('That\'s a cool stenograph keyboard!', 'received');
-                }, 1000);
-            }
-        });
-    }
-    
-    // Function to add message to chat
     function addMessage(text, type) {
-        if (!chatContainer) return;
+        if (!elements.chatContainer || !text.trim()) return;
         
         const now = new Date();
         const hours = now.getHours();
         const minutes = now.getMinutes();
-        const ampm = hours >= 12 ? 'PM' : 'AM';
-        const formattedHours = hours % 12 || 12;
-        const formattedMinutes = minutes < 10 ? '0' + minutes : minutes;
-        const timeString = `${formattedHours}:${formattedMinutes} ${ampm}`;
+        const timeString = `${hours < 10 ? '0' + hours : hours}:${minutes < 10 ? '0' + minutes : minutes}`;
         
         const messageDiv = document.createElement('div');
         messageDiv.className = `message ${type}`;
-        
         messageDiv.innerHTML = `
             <div class="message-content">${text}</div>
             <div class="message-time">${timeString}</div>
         `;
         
-        chatContainer.appendChild(messageDiv);
-        chatContainer.scrollTop = chatContainer.scrollHeight;
+        elements.chatContainer.appendChild(messageDiv);
+        elements.chatContainer.scrollTop = elements.chatContainer.scrollHeight;
     }
     
-    // Transfer text from stenograph to input
-    function transferTextToInput() {
-        if (!output || !messageInput) return;
-        
-        if (output.value.trim()) {
-            messageInput.value += output.value;
-            output.value = '';
-            clearSelectedKeys();
-            
-            if (keyboardPopup) {
-                keyboardPopup.classList.remove('active');
-            }
-        }
-    }
-    
-    // Send text directly to chat from keyboard
-    function sendTextFromKeyboard() {
-        if (!output || !chatContainer) return;
-        
-        const text = output.value.trim();
-        if (text) {
-            addMessage(text, 'sent');
-            output.value = '';
-            clearSelectedKeys();
-            
-            // Close the keyboard popup after sending the message
-            if (keyboardPopup) {
-                keyboardPopup.classList.remove('active');
-            }
-            
-            // Simulate reply after 1 second
-            setTimeout(() => {
-                addMessage('Got your message!', 'received');
-            }, 1000);
-        }
-    }
-    
-    // Add event listeners for text transfer
-    if (output) {
-        output.addEventListener('dblclick', transferTextToInput);
-    }
-    
-    // Add event listener for send button in keyboard
-    const sendKeyboardBtn = getElement('sendKeyboardBtn');
-    if (sendKeyboardBtn) {
-        sendKeyboardBtn.addEventListener('click', sendTextFromKeyboard);
-    }
-    
-    // Tab switching functionality
-    if (stenographTab && fullKeyboardTab && symbolsTab) {
-        stenographTab.addEventListener('click', () => {
-            if (!stenographKeyboard || !fullKeyboard || !symbolsKeyboard) return;
-            
-            stenographTab.classList.add('active');
-            fullKeyboardTab.classList.remove('active');
-            symbolsTab.classList.remove('active');
-            stenographKeyboard.style.display = 'grid';
-            fullKeyboard.style.display = 'none';
-            symbolsKeyboard.style.display = 'none';
-            activeKeyboard = 'stenograph';
-        });
-        
-        fullKeyboardTab.addEventListener('click', () => {
-            if (!stenographKeyboard || !fullKeyboard || !symbolsKeyboard) return;
-            
-            fullKeyboardTab.classList.add('active');
-            stenographTab.classList.remove('active');
-            symbolsTab.classList.remove('active');
-            fullKeyboard.style.display = 'grid';
-            stenographKeyboard.style.display = 'none';
-            symbolsKeyboard.style.display = 'none';
-            activeKeyboard = 'full';
-        });
-        
-        symbolsTab.addEventListener('click', () => {
-            if (!stenographKeyboard || !fullKeyboard || !symbolsKeyboard) return;
-            
-            symbolsTab.classList.add('active');
-            stenographTab.classList.remove('active');
-            fullKeyboardTab.classList.remove('active');
-            symbolsKeyboard.style.display = 'grid';
-            stenographKeyboard.style.display = 'none';
-            fullKeyboard.style.display = 'none';
-            activeKeyboard = 'symbols';
-        });
-    }
-    
-    // Info panel toggle
-    if (infoToggle && infoPanel) {
-        infoToggle.addEventListener('click', () => {
-            if (infoPanel.style.display === 'none') {
-                infoPanel.style.display = 'block';
-            } else {
-                infoPanel.style.display = 'none';
-            }
-        });
-    }
-    
-    // Function to update the keyboard and suggestions based on selected keys
     function updateKeyboard() {
-        if (!stenographKeyboard) return;
+        if (!elements.stenographKeyboard) return;
         
-        // Clear active states
-        const keys = stenographKeyboard.querySelectorAll('.key');
-        keys.forEach(key => {
+        elements.stenographKeyboard.querySelectorAll('.key').forEach(key => {
             if (!key) return;
             
             const primaryKey = key.dataset.primary;
             const secondaryKey = key.dataset.secondary;
+            const tertiaryKey = key.dataset.tertiary;
             
-            // Determine if this key is selected (either primary or secondary mode)
-            const isPrimarySelected = selectedKeys.includes(primaryKey);
-            const isSecondarySelected = selectedKeys.includes(secondaryKey);
-            
-            key.classList.toggle('primary-selected', isPrimarySelected);
-            key.classList.toggle('secondary-selected', isSecondarySelected);
+            key.classList.toggle('primary-selected', selectedKeys.includes(primaryKey));
+            key.classList.toggle('secondary-selected', selectedKeys.includes(secondaryKey));
+            key.classList.toggle('tertiary-selected', selectedKeys.includes(tertiaryKey));
         });
         
-        // Generate suggestions
         updateSuggestions();
     }
     
     function updateSuggestions() {
-        if (!suggestions) return;
-        
-        suggestions.innerHTML = '';
-        if (selectedKeys.length === 0) return;
-        
-        // Sort keys alphabetically to match dictionary keys
-        const sortedKeys = [...selectedKeys].sort().join('');
-        
-        // Find words that match the current key combination
-        let words = dictionary[sortedKeys] || [];
-        
-        // If no exact match, find partial matches
-        if (words.length === 0) {
-            // Check all dictionary entries
-            Object.entries(dictionary).forEach(([combo, wordList]) => {
-                // If all selected keys are in this combo
-                const comboChars = combo.split('');
-                if (selectedKeys.every(key => comboChars.includes(key))) {
-                    words = [...words, ...wordList];
-                }
-            });
-            
-            // Limit to 5 suggestions (excluding the direct word if present)
-            words = [...new Set(words)].slice(0, 5);
+        if (!elements.suggestions) {
+            console.error('Suggestions element is missing');
+            return;
         }
         
-        // Add the direct word formed by the keys in sequence (not sorted)
-        const directWord = selectedKeys.join('').toLowerCase();
+        log('Running updateSuggestions()');
+        log('Current selectedKeys:', selectedKeys);
+        
+        // Clear existing suggestions
+        elements.suggestions.innerHTML = '';
+        
+        // Exit if no keys selected
+        if (selectedKeys.length === 0) {
+            log('No keys selected, exiting updateSuggestions');
+            return;
+        }
+        
+        // Ensure dictionary is defined and using window.dictionary for global access
+        const dict = window.dictionary || {};
+        log('Dictionary available with entries:', Object.keys(dict).length);
+        
+        // Get the sequence of keys
+        const rawSequence = selectedKeys.join('');
+        log('Raw sequence formed:', rawSequence);
+        
+        // Try different case formats for exact matches
+        let words = [];
+        
+        // Try exact match (case sensitive)
+        if (dict[rawSequence]) {
+            log(`Found exact match for "${rawSequence}":`, dict[rawSequence]);
+            words = [...dict[rawSequence]];
+        } 
+        // Try uppercase
+        else if (dict[rawSequence.toUpperCase()]) {
+            log(`Found uppercase match for "${rawSequence.toUpperCase()}":`, dict[rawSequence.toUpperCase()]);
+            words = [...dict[rawSequence.toUpperCase()]];
+        }
+        // Try lowercase
+        else if (dict[rawSequence.toLowerCase()]) {
+            log(`Found lowercase match for "${rawSequence.toLowerCase()}":`, dict[rawSequence.toLowerCase()]);
+            words = [...dict[rawSequence.toLowerCase()]];
+        }
+        
+        log('Matches after key lookup:', words);
+        
+        // For partial matches if no exact match found
+        if (words.length === 0) {
+            log('No exact case matches, checking pattern matches');
+            
+            try {
+                // Create a regex pattern to match our sequence
+                const pattern = new RegExp(rawSequence, 'i');
+                log('Using regex pattern:', pattern);
+                
+                Object.entries(dict).forEach(([combo, wordList]) => {
+                    // Check if the combo contains our pattern
+                    if (pattern.test(combo)) {
+                        log(`Combo "${combo}" matches pattern "${pattern}", adding:`, wordList);
+                        words = [...words, ...wordList];
+                    }
+                });
+                
+                // Also check if our keys are a subset of any combo
+                const uniqueKeys = [...new Set(selectedKeys)];
+                log('Checking if unique keys are subset of combos:', uniqueKeys);
+                
+                Object.entries(dict).forEach(([combo, wordList]) => {
+                    const comboChars = combo.split('');
+                    const isSubset = uniqueKeys.every(key => 
+                        comboChars.includes(key) || 
+                        comboChars.includes(key.toUpperCase()) || 
+                        comboChars.includes(key.toLowerCase())
+                    );
+                    
+                    if (isSubset) {
+                        log(`Keys are subset of "${combo}", adding words:`, wordList);
+                        // Don't add duplicates
+                        wordList.forEach(word => {
+                            if (!words.includes(word)) {
+                                words.push(word);
+                            }
+                        });
+                    }
+                });
+            } catch (error) {
+                console.error('Error in pattern matching:', error);
+            }
+        }
+        
+        // Add the direct word formed by the keys in sequence
+        const directWord = rawSequence.toLowerCase();
         if (directWord.length > 0) {
-            // Add it as the first suggestion with a different style
-            words = [directWord, ...words.filter(w => w !== directWord)];
+            // Only add if not already in the list
+            if (!words.includes(directWord)) {
+                log(`Adding direct word: "${directWord}"`);
+                words = [directWord, ...words];
+            }
+        }
+        
+        // Limit to configured number of suggestions
+        words = words.slice(0, maxSuggestions);
+        log(`Final suggestions (limited to ${maxSuggestions}):`, words);
+        
+        if (words.length === 0) {
+            log('No suggestions found');
+            return;
         }
         
         // Create suggestion elements
         words.forEach(word => {
+            log(`Creating suggestion element for: "${word}"`);
             const suggElement = document.createElement('div');
             suggElement.className = 'suggestion';
             suggElement.textContent = word;
@@ -327,275 +334,457 @@ document.addEventListener('DOMContentLoaded', function() {
                 appendWord(word);
                 clearSelectedKeys();
             });
-            suggestions.appendChild(suggElement);
+            elements.suggestions.appendChild(suggElement);
+        });
+        
+        // Make sure suggestions are visible
+        elements.suggestions.style.display = 'flex';
+        elements.suggestions.style.visibility = 'visible';
+    }
+
+    function checkElements() {
+        log('Checking DOM elements:');
+        const elementsToCheck = [
+            'stenographKeyboard', 'symbolsKeyboard', 'suggestions', 
+            'output', 'enterBtn', 'backspaceBtn'
+        ];
+        
+        elementsToCheck.forEach(id => {
+            const el = document.getElementById(id);
+            log(`${id} element exists: ${el !== null}`);
         });
     }
     
     function appendWord(word) {
-        if (!output) return;
+        if (!elements.output) return;
         
-        const currentText = output.value;
-        if (currentText.length > 0 && !currentText.endsWith(' ') && !currentText.endsWith('\n')) {
-            output.value += ' ' + word;
-        } else {
-            output.value += word;
-        }
+        const currentText = elements.output.value;
+        const needsSpace = currentText.length > 0 && 
+                          !currentText.endsWith(' ') && 
+                          !currentText.endsWith('\n');
+        
+        elements.output.value += needsSpace ? ` ${word}` : word;
     }
     
     function clearSelectedKeys() {
         selectedKeys = [];
         
-        if (!stenographKeyboard) return;
+        // Remove multi-press visual indicators
+        if (elements.stenographKeyboard) {
+            elements.stenographKeyboard.querySelectorAll('.key').forEach(key => {
+                if (key) {
+                    key.classList.remove('double-tapped', 'multi-pressed');
+                    key.removeAttribute('data-press-count');
+                    key.querySelectorAll('.press-count').forEach(el => el.remove());
+                }
+            });
+        }
         
-        // Reset any double-tapped keys to primary state
-        const keys = stenographKeyboard.querySelectorAll('.key');
-        keys.forEach(key => {
-            if (key) {
-                key.classList.remove('double-tapped');
-            }
-        });
+        if (elements.symbolsKeyboard) {
+            elements.symbolsKeyboard.querySelectorAll('.key').forEach(key => {
+                if (key) {
+                    key.classList.remove('double-tapped', 'multi-pressed');
+                    key.removeAttribute('data-press-count');
+                    key.querySelectorAll('.press-count').forEach(el => el.remove());
+                }
+            });
+        }
+        
         updateKeyboard();
     }
     
-    // Function to toggle between primary and secondary modes
     function toggleKeyboardMode() {
-        isSecondaryMode = !isSecondaryMode;
+        // Cycle through modes: primary (0) -> secondary (1) -> tertiary (2) -> primary (0)
+        keyboardMode = (keyboardMode + 1) % 3;
         
-        // Update keyboard appearance to reflect the current mode
-        if (stenographKeyboard) {
-            stenographKeyboard.classList.toggle('secondary-mode', isSecondaryMode);
-        }
-        if (fullKeyboard) {
-            fullKeyboard.classList.toggle('secondary-mode', isSecondaryMode);
-        }
-        if (symbolsKeyboard) {
-            symbolsKeyboard.classList.toggle('secondary-mode', isSecondaryMode);
-        }
-        
-        // Update toggle button appearance
-        const toggleButtons = document.querySelectorAll('.control-btn.toggle');
-        toggleButtons.forEach(btn => {
-            if (btn) {
-                btn.classList.toggle('secondary-mode', isSecondaryMode);
+        // Remove all mode classes
+        ['stenographKeyboard', 'symbolsKeyboard'].forEach(kbName => {
+            if (elements[kbName]) {
+                elements[kbName].classList.remove('secondary-mode', 'tertiary-mode');
             }
         });
         
-        // Remove all double-tapped classes as they're no longer needed
-        const allKeys = document.querySelectorAll('.key');
-        allKeys.forEach(key => {
-            if (key) {
-                key.classList.remove('double-tapped');
-            }
+        // Update toggle buttons (remove all mode classes first)
+        document.querySelectorAll('.control-btn.toggle').forEach(btn => {
+            if (btn) btn.classList.remove('secondary-mode', 'tertiary-mode');
+        });
+        
+        // Apply current mode class
+        if (keyboardMode === 1) {
+            // Secondary mode
+            ['stenographKeyboard', 'symbolsKeyboard'].forEach(kbName => {
+                if (elements[kbName]) elements[kbName].classList.add('secondary-mode');
+            });
+            document.querySelectorAll('.control-btn.toggle').forEach(btn => {
+                if (btn) btn.classList.add('secondary-mode');
+            });
+        } else if (keyboardMode === 2) {
+            // Tertiary mode
+            ['stenographKeyboard', 'symbolsKeyboard'].forEach(kbName => {
+                if (elements[kbName]) elements[kbName].classList.add('tertiary-mode');
+            });
+            document.querySelectorAll('.control-btn.toggle').forEach(btn => {
+                if (btn) btn.classList.add('tertiary-mode');
+            });
+        }
+        
+        // Reset double-tapped state
+        document.querySelectorAll('.key').forEach(key => {
+            if (key) key.classList.remove('double-tapped');
         });
     }
-    
-    // Add event listener for the toggle button (all toggle buttons in the interface)
-    document.querySelectorAll('.control-btn.toggle').forEach(btn => {
-        if (btn) {
-            btn.addEventListener('click', toggleKeyboardMode);
-        }
-    });
-    
-    // Helper function to add a key to selectedKeys (without toggling)
+
     function addKeySelection(key) {
-        // Only add the key if it's not already in the array
-        if (!selectedKeys.includes(key)) {
-            selectedKeys.push(key);
-            return true; // Key was added
+        if (!key) {
+            console.warn('Attempted to add null/undefined key');
+            return false;
         }
-        return false; // Key was already there
-    }
-    
-    // Handle key selection for stenograph keyboard
-    if (stenographKeyboard) {
-        stenographKeyboard.addEventListener('click', event => {
-            const key = event.target.closest('.key');
-            if (!key) return;
-            
-            const primaryKey = key.dataset.primary;
-            const secondaryKey = key.dataset.secondary;
-            
-            // Add either primary or secondary key based on current mode
-            if (isSecondaryMode) {
-                if (secondaryKey) {
-                    addKeySelection(secondaryKey);
-                }
-            } else {
-                if (primaryKey) {
-                    addKeySelection(primaryKey);
-                }
-            }
-            
-            updateKeyboard();
-        });
-    }
-    
-    // Full keyboard functionality
-    if (fullKeyboard) {
-        fullKeyboard.addEventListener('click', event => {
-            const key = event.target.closest('.key');
-            if (!key || !output) return;
-            
-            const charValue = key.dataset.char;
-            if (!charValue) return;
-            
-            // Add letters to selected keys to get suggestions
-            if (charValue.match(/[A-Za-z]/)) {
-                // Only add if it's not already in the array
-                addKeySelection(charValue.toUpperCase());
-                updateSuggestions();
-            } else {
-                // For non-letters (space, punctuation, etc.), add directly to output
-                output.value += charValue;
-            }
-        });
-    }
-    
-    // Symbols keyboard functionality
-    if (symbolsKeyboard) {
-        symbolsKeyboard.addEventListener('click', event => {
-            const key = event.target.closest('.key');
-            if (!key) return;
-            
-            const primaryKey = key.dataset.primary;
-            const secondaryKey = key.dataset.secondary;
-            
-            // Add either primary or secondary key based on current mode
-            if (isSecondaryMode) {
-                if (secondaryKey) {
-                    addKeySelection(secondaryKey);
-                }
-            } else {
-                if (primaryKey) {
-                    addKeySelection(primaryKey);
-                }
-            }
-            
-            updateKeyboard();
-        });
-    }
-    
-    // Control button handlers
-    if (enterBtn && output) {
-        enterBtn.addEventListener('click', () => {
-            // If there's a current word in suggestions (first one, the green one)
-            if (selectedKeys.length > 0) {
-                const directWord = selectedKeys.join('').toLowerCase();
-                appendWord(directWord);
-                clearSelectedKeys();
-            } else {
-                // If no current word, just add a new line
-                output.value += '\n';
-            }
-        });
-    }
-    
-    if (backspaceBtn) {
-        backspaceBtn.addEventListener('click', () => {
-            if (!output) return;
-            
-            if (selectedKeys.length > 0) {
-                // Remove the last selected key
-                selectedKeys.pop();
-                updateKeyboard();
-            } else {
-                // If no keys selected, delete the last character from the output
-                const text = output.value;
-                if (text.length > 0) {
-                    output.value = text.substring(0, text.length - 1);
-                }
-            }
-        });
-    }
-    
-    if (wordDeleteBtn && output) {
-        wordDeleteBtn.addEventListener('click', () => {
-            const text = output.value;
-            
-            // If text is empty, nothing to delete
-            if (text.length === 0) return;
-            
-            // Find the last space or newline
-            const lastSpaceIndex = text.lastIndexOf(' ');
-            const lastNewlineIndex = text.lastIndexOf('\n');
-            const lastIndex = Math.max(lastSpaceIndex, lastNewlineIndex);
-            
-            if (lastIndex === -1) {
-                // No spaces or newlines, clear all (this is a single word or characters)
-                output.value = '';
-            } else {
-                // Check if there's content after the last delimiter
-                if (lastIndex + 1 < text.length) {
-                    // Delete the partial word after the delimiter
-                    output.value = text.substring(0, lastIndex + 1);
-                } else {
-                    // If cursor is at end of a space/newline, find previous word
-                    const textWithoutLastDelimiter = text.substring(0, lastIndex);
-                    const prevLastSpaceIndex = textWithoutLastDelimiter.lastIndexOf(' ');
-                    const prevLastNewlineIndex = textWithoutLastDelimiter.lastIndexOf('\n');
-                    const prevLastIndex = Math.max(prevLastSpaceIndex, prevLastNewlineIndex);
-                    
-                    if (prevLastIndex === -1) {
-                        // Only one word before the delimiter
-                        output.value = '';
-                    } else {
-                        // Delete back to previous delimiter
-                        output.value = text.substring(0, prevLastIndex + 1);
-                    }
-                }
-            }
-        });
-    }
-    
-    if (clearBtn) {
-        clearBtn.addEventListener('click', clearSelectedKeys);
-    }
-    
-    // Keyboard input support
-    document.addEventListener('keydown', (e) => {
-        if (!output) return;
         
-        // If popup is not active, don't process keyboard input
-        if (keyboardPopup && !keyboardPopup.classList.contains('active')) {
+        log(`Adding key: "${key}"`);
+        
+        // Always add the key, allowing it to be repeated
+        selectedKeys.push(key);
+        log('Updated selectedKeys:', selectedKeys);
+        return true; // Key was added
+    }
+    
+    function handleKeyClick(key, isSymbolsKeyboard = false) {
+        if (!key) {
+            log('No key element found in click handler');
             return;
         }
         
-        if (e.key === 'Backspace') {
-            if (selectedKeys.length > 0) {
-                selectedKeys.pop();
-                updateKeyboard();
-            } else {
-                const text = output.value;
-                if (text.length > 0) {
-                    output.value = text.substring(0, text.length - 1);
-                }
-            }
-            e.preventDefault();
-        } else if (e.key === 'Enter') {
-            if (selectedKeys.length > 0) {
-                const directWord = selectedKeys.join('').toLowerCase();
-                appendWord(directWord);
-                clearSelectedKeys();
-            } else {
-                output.value += '\n';
-            }
-            e.preventDefault();
-        } else if (e.key === ' ') {
-            if (selectedKeys.length > 0) {
-                const directWord = selectedKeys.join('').toLowerCase();
-                appendWord(directWord);
-                clearSelectedKeys();
-            } else {
-                output.value += ' ';
-            }
-            e.preventDefault();
-        } else if (e.key.length === 1 && e.key.match(/[a-zA-Z]/)) {
-            addKeySelection(e.key.toUpperCase());
-            updateKeyboard();
-            e.preventDefault();
+        log('Key clicked:', key);
+        
+        // For stenograph or symbols keyboard
+        const primaryKey = key.dataset.primary;
+        const secondaryKey = key.dataset.secondary;
+        const tertiaryKey = key.dataset.tertiary;
+        
+        log('Key data attributes:', { 
+            primary: primaryKey, 
+            secondary: secondaryKey, 
+            tertiary: tertiaryKey 
+        });
+        log('Current keyboard mode:', keyboardMode);
+        
+        // Count how many times this key has been pressed
+        let pressCount = 0;
+        let keyAdded = false;
+        
+        // Select key based on current mode and add it
+        if (keyboardMode === 0 && primaryKey) {
+            // Primary mode
+            keyAdded = addKeySelection(primaryKey);
+            pressCount = selectedKeys.filter(k => k === primaryKey).length;
+        } else if (keyboardMode === 1 && secondaryKey) {
+            // Secondary mode
+            keyAdded = addKeySelection(secondaryKey);
+            pressCount = selectedKeys.filter(k => k === secondaryKey).length;
+        } else if (keyboardMode === 2 && tertiaryKey) {
+            // Tertiary mode
+            keyAdded = addKeySelection(tertiaryKey);
+            pressCount = selectedKeys.filter(k => k === tertiaryKey).length;
         }
-    });
+        
+        log('Key added:', keyAdded);
+        log('Current selectedKeys:', selectedKeys);
+        
+        // Visual feedback for multiple presses
+        if (pressCount > 1) {
+            // Add a data attribute to show the press count
+            key.setAttribute('data-press-count', pressCount);
+            
+            // Add a class to style multiple presses
+            key.classList.add('multi-pressed');
+            
+            // We can add a temporary visual indication
+            const indicator = document.createElement('div');
+            indicator.className = 'press-count';
+            indicator.textContent = pressCount;
+            // Remove any existing indicators
+            key.querySelectorAll('.press-count').forEach(el => el.remove());
+            key.appendChild(indicator);
+            
+            // Remove the indicator after a delay
+            setTimeout(() => {
+                if (key.contains(indicator)) {
+                    indicator.remove();
+                }
+            }, 1000);
+        }
+        
+        updateKeyboard();
+    }
+
+    function handleTextTransfer(toInput) {
+        if (!elements.output) return;
+        
+        const text = elements.output.value.trim();
+        if (!text) return;
+        
+        if (toInput && elements.messageInput) {
+            // Transfer to WhatsApp input
+            elements.messageInput.value += text;
+        } else {
+            // Send directly to chat
+            addMessage(text, 'sent');
+            
+            // Simulate reply with random response
+            setTimeout(() => {
+                addMessage(getRandomResponse(), 'received');
+            }, 1000);
+        }
+        
+        // Clear output and hide keyboard
+        elements.output.value = '';
+        clearSelectedKeys();
+        toggleKeyboardPopup(false);
+    }
+    
+    function deleteLastWord() {
+        if (!elements.output) return;
+        
+        const text = elements.output.value;
+        if (text.length === 0) return;
+        
+        const lastSpaceIndex = text.lastIndexOf(' ');
+        const lastNewlineIndex = text.lastIndexOf('\n');
+        const lastIndex = Math.max(lastSpaceIndex, lastNewlineIndex);
+        
+        if (lastIndex === -1) {
+            // No spaces or newlines, clear all
+            elements.output.value = '';
+        } else if (lastIndex + 1 < text.length) {
+            // Delete the partial word after the delimiter
+            elements.output.value = text.substring(0, lastIndex + 1);
+        } else {
+            // Find previous word
+            const textBefore = text.substring(0, lastIndex);
+            const prevLastIndex = Math.max(textBefore.lastIndexOf(' '), textBefore.lastIndexOf('\n'));
+            
+            elements.output.value = prevLastIndex === -1 ? '' : text.substring(0, prevLastIndex + 1);
+        }
+    }
+    
+    // Set up event listeners
+    function setupEventListeners() {
+        // Popup toggle
+        if (popupToggleBtn) {
+            popupToggleBtn.addEventListener('click', () => toggleKeyboardPopup());
+        }
+        
+        // Close button
+        if (elements.closeKeyboardBtn) {
+            elements.closeKeyboardBtn.addEventListener('click', () => toggleKeyboardPopup(false));
+        }
+        
+        // Drag to close
+        if (elements.keyboardHandle && elements.keyboardPopup) {
+            // Touch events
+            elements.keyboardHandle.addEventListener('touchstart', e => {
+                touchStartY = e.touches[0].clientY;
+            });
+            
+            elements.keyboardHandle.addEventListener('touchmove', e => {
+                touchCurrentY = e.touches[0].clientY;
+                const diffY = touchCurrentY - touchStartY;
+                
+                if (diffY > 0) {
+                    elements.keyboardPopup.style.transform = `translateY(${diffY}px)`;
+                }
+            });
+            
+            elements.keyboardHandle.addEventListener('touchend', () => {
+                const diffY = touchCurrentY - touchStartY;
+                
+                if (diffY > 100) {
+                    toggleKeyboardPopup(false);
+                }
+                
+                elements.keyboardPopup.style.transform = '';
+                touchStartY = touchCurrentY = 0;
+            });
+            
+            // Mouse events
+            elements.keyboardHandle.addEventListener('mousedown', e => {
+                e.preventDefault();
+                const startY = e.clientY;
+                
+                const mouseMove = e => {
+                    const diffY = e.clientY - startY;
+                    if (diffY > 0) {
+                        elements.keyboardPopup.style.transform = `translateY(${diffY}px)`;
+                    }
+                };
+                
+                const mouseUp = e => {
+                    if (e.clientY - startY > 100) {
+                        toggleKeyboardPopup(false);
+                    }
+                    
+                    elements.keyboardPopup.style.transform = '';
+                    document.removeEventListener('mousemove', mouseMove);
+                    document.removeEventListener('mouseup', mouseUp);
+                };
+                
+                document.addEventListener('mousemove', mouseMove);
+                document.addEventListener('mouseup', mouseUp);
+            });
+        }
+        
+        // Tab switching (only stenograph and symbols tabs remain)
+        if (elements.stenographTab) {
+            elements.stenographTab.addEventListener('click', () => switchKeyboardTab('stenograph'));
+        }
+        
+        if (elements.symbolsTab) {
+            elements.symbolsTab.addEventListener('click', () => switchKeyboardTab('symbols'));
+        }
+        
+        // Outside click and propagation
+        document.addEventListener('click', e => {
+            if (elements.keyboardPopup && 
+                elements.keyboardPopup.classList.contains('active') && 
+                !elements.keyboardPopup.contains(e.target) && 
+                e.target !== popupToggleBtn) {
+                toggleKeyboardPopup(false);
+            }
+        });
+        
+        if (elements.keyboardPopup) {
+            elements.keyboardPopup.addEventListener('click', e => e.stopPropagation());
+        }
+        
+        // Info panel toggle
+        if (elements.infoToggle && elements.infoPanel) {
+            elements.infoToggle.addEventListener('click', () => {
+                elements.infoPanel.style.display = 
+                    elements.infoPanel.style.display === 'none' ? 'block' : 'none';
+            });
+        }
+        
+        // Text transfer
+        if (elements.output) {
+            elements.output.addEventListener('dblclick', () => handleTextTransfer(true));
+        }
+        
+        // Send buttons
+        if (elements.sendKeyboardBtn) {
+            elements.sendKeyboardBtn.addEventListener('click', () => handleTextTransfer(false));
+        }
+        
+        if (elements.sendBtn && elements.messageInput) {
+            elements.sendBtn.addEventListener('click', () => {
+                const message = elements.messageInput.value.trim();
+                if (message) {
+                    addMessage(message, 'sent');
+                    elements.messageInput.value = '';
+                    
+                    // Send random response message
+                    setTimeout(() => {
+                        addMessage(getRandomResponse(), 'received');
+                    }, 1000);
+                }
+            });
+        }
+        
+        // Keyboard events
+        if (elements.stenographKeyboard) {
+            elements.stenographKeyboard.addEventListener('click', event => {
+                handleKeyClick(event.target.closest('.key'));
+            });
+        }
+        
+        if (elements.symbolsKeyboard) {
+            elements.symbolsKeyboard.addEventListener('click', event => {
+                handleKeyClick(event.target.closest('.key'), true);
+            });
+        }
+        
+        // Control buttons
+        if (elements.enterBtn && elements.output) {
+            elements.enterBtn.addEventListener('click', () => {
+                if (selectedKeys.length > 0) {
+                    appendWord(selectedKeys.join('').toLowerCase());
+                    clearSelectedKeys();
+                } else {
+                    elements.output.value += '\n';
+                }
+            });
+        }
+        
+        if (elements.backspaceBtn && elements.output) {
+            elements.backspaceBtn.addEventListener('click', () => {
+                if (selectedKeys.length > 0) {
+                    selectedKeys.pop();
+                    updateKeyboard();
+                } else {
+                    const text = elements.output.value;
+                    if (text.length > 0) {
+                        elements.output.value = text.substring(0, text.length - 1);
+                    }
+                }
+            });
+        }
+        
+        if (elements.wordDeleteBtn) {
+            elements.wordDeleteBtn.addEventListener('click', deleteLastWord);
+        }
+        
+        if (elements.clearBtn) {
+            elements.clearBtn.addEventListener('click', clearSelectedKeys);
+        }
+        
+        // Toggle mode buttons
+        document.querySelectorAll('.control-btn.toggle').forEach(btn => {
+            if (btn) btn.addEventListener('click', toggleKeyboardMode);
+        });
+        
+        // Physical keyboard support
+        document.addEventListener('keydown', e => {
+            if (!elements.output || 
+                (elements.keyboardPopup && !elements.keyboardPopup.classList.contains('active'))) {
+                return;
+            }
+            
+            if (e.key === 'Backspace') {
+                if (selectedKeys.length > 0) {
+                    selectedKeys.pop();
+                    updateKeyboard();
+                } else {
+                    const text = elements.output.value;
+                    if (text.length > 0) {
+                        elements.output.value = text.substring(0, text.length - 1);
+                    }
+                }
+                e.preventDefault();
+            } else if (e.key === 'Enter') {
+                if (selectedKeys.length > 0) {
+                    appendWord(selectedKeys.join('').toLowerCase());
+                    clearSelectedKeys();
+                } else {
+                    elements.output.value += '\n';
+                }
+                e.preventDefault();
+            } else if (e.key === ' ') {
+                if (selectedKeys.length > 0) {
+                    appendWord(selectedKeys.join('').toLowerCase());
+                    clearSelectedKeys();
+                } else {
+                    elements.output.value += ' ';
+                }
+                e.preventDefault();
+            } else if (e.key.length === 1 && e.key.match(/[a-zA-Z]/)) {
+                addKeySelection(e.key.toUpperCase());
+                updateKeyboard();
+                e.preventDefault();
+            }
+        });
+    }
     
     // Initialize
+    setupEventListeners();
     updateKeyboard();
+    switchKeyboardTab('stenograph');
 });
