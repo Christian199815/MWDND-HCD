@@ -908,3 +908,645 @@
       font-size: 20px;
     }
   }
+
+
+  /* Additional CSS to add to your styles.css file for improved suggestion styling */
+
+/* Enhanced suggestion styling */
+.suggestions {
+    width: 100%;
+    min-height: 60px;
+    border: 2px solid var(--secondary-hover);
+    border-radius: var(--border-radius);
+    padding: 15px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 15px;
+    background-color: #e9f7fe;
+    transition: all 0.3s ease;
+  }
+  
+  .suggestions:empty {
+    min-height: 0;
+    padding: 0;
+    border: none;
+  }
+  
+  .suggestion {
+    padding: 15px 20px;
+    background-color: var(--secondary-color);
+    color: white;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    user-select: none;
+    font-size: var(--font-size-larger);
+    font-weight: bold;
+    margin: 5px;
+    min-width: 100px;
+    text-align: center;
+    box-shadow: var(--shadow-small);
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .suggestion:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-medium);
+    background-color: var(--secondary-hover);
+  }
+  
+  .suggestion:active {
+    transform: translateY(1px);
+    box-shadow: var(--shadow-small);
+  }
+  
+  /* First suggestion (the direct word) gets special styling */
+  .suggestion.first-suggestion {
+    background-color: var(--success-color);
+    border: 2px solid var(--success-hover);
+    font-weight: bold;
+  }
+  
+  .suggestion.first-suggestion:hover {
+    background-color: var(--success-hover);
+  }
+  
+  /* Loading indicator for API requests */
+  .suggestions.loading::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, var(--primary-color), transparent);
+    animation: loading 1.5s infinite;
+  }
+  
+  @keyframes loading {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+  }
+  
+  /* Empty state styling */
+  .suggestions:empty::before {
+    content: "Type to see suggestions";
+    color: var(--text-muted);
+    font-style: italic;
+    display: none; /* Hide by default, only show when we want to */
+  }
+  
+  /* API status indicator */
+  .api-status {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background-color: var(--success-color);
+    border: 2px solid white;
+    transition: background-color 0.3s ease;
+  }
+  
+  .api-status.offline {
+    background-color: var(--danger-color);
+  }
+  
+  .api-status.fallback {
+    background-color: var(--warning-color);
+  }
+  
+  /* Visual feedback for pressed keys */
+  .key.primary-selected,
+  .key.secondary-selected,
+  .key.tertiary-selected {
+    transform: translateY(2px);
+    box-shadow: var(--shadow-key-pressed);
+  }
+  
+  /* Tooltip styling for the suggestion source */
+  .suggestion::after {
+    content: attr(data-source);
+    position: absolute;
+    bottom: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: var(--text-color);
+    color: white;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: var(--font-size-smaller);
+    opacity: 0;
+    transition: all 0.2s ease;
+    pointer-events: none;
+    white-space: nowrap;
+  }
+  
+  .suggestion:hover::after {
+    bottom: -25px;
+    opacity: 0.9;
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .suggestion {
+      padding: 10px 15px;
+      font-size: var(--font-size-normal);
+      min-width: 80px;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .suggestions {
+      padding: 10px;
+      gap: 8px;
+    }
+    
+    .suggestion {
+      padding: 8px 12px;
+      font-size: var(--font-size-small);
+      min-width: 60px;
+      margin: 3px;
+    }
+  }
+
+  /* Additional styling for the keyboard to handle API integration */
+.suggestions {
+    position: relative;
+    min-height: 60px;
+  }
+  
+  /* Loading state */
+  .suggestions.loading::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(90deg, 
+      transparent, 
+      var(--primary-color), 
+      transparent
+    );
+    animation: loading 1.5s infinite;
+  }
+  
+  @keyframes loading {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+  }
+  
+  /* First suggestion styling (direct word) */
+  .suggestion.first-suggestion {
+    background-color: var(--success-color);
+    border: 2px solid var(--success-hover);
+  }
+  
+  .suggestion.first-suggestion:hover {
+    background-color: var(--success-hover);
+  }
+  
+  /* Online/offline indicator */
+  .api-status {
+    position: fixed;
+    bottom: 10px;
+    left: 10px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: var(--success-color);
+    border: 2px solid white;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+    transition: background-color 0.3s ease;
+  }
+  
+  .api-status.offline {
+    background-color: var(--danger-color);
+  }
+  
+  /* Debug information for suggestions */
+  .suggestion[data-source]::after {
+    content: attr(data-source);
+    position: absolute;
+    bottom: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 2px 5px;
+    border-radius: 3px;
+    font-size: 10px;
+    opacity: 0;
+    transition: all 0.2s ease;
+  }
+  
+  .suggestion[data-source]:hover::after {
+    opacity: 1;
+    bottom: -25px;
+  }
+  
+  /* Empty state message */
+  .suggestions:empty::before {
+    content: "Typ letters voor suggesties";
+    display: block;
+    color: var(--text-muted);
+    font-style: italic;
+    text-align: center;
+    width: 100%;
+    padding: 10px;
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 480px) {
+    .suggestion {
+      padding: 8px 12px;
+      font-size: var(--font-size-small);
+      min-width: 70px;
+    }
+    
+    .suggestion[data-source]::after {
+      display: none; /* Hide debug info on small screens */
+    }
+  }
+
+  /* Additional CSS for wordlist status and enhanced suggestions */
+
+/* Wordlist status indicator */
+.wordlist-status {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 12px;
+    padding: 4px 8px;
+    border-radius: 12px;
+    color: white;
+    cursor: pointer;
+    box-shadow: var(--shadow-small);
+    transition: all 0.3s ease;
+  }
+  
+  .wordlist-status.loading {
+    background-color: var(--warning-color);
+    animation: pulse 1.5s infinite;
+  }
+  
+  .wordlist-status.loaded {
+    background-color: var(--success-color);
+  }
+  
+  .wordlist-status.fallback {
+    background-color: var(--text-light);
+  }
+  
+  .wordlist-status:hover {
+    transform: translateY(-50%) scale(1.05);
+    box-shadow: var(--shadow-medium);
+  }
+  
+  /* Enhanced suggestions styling */
+  .suggestions {
+    position: relative;
+    min-height: 60px;
+  }
+  
+  /* Loading state */
+  .suggestions.loading::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(90deg, 
+      transparent, 
+      var(--primary-color), 
+      transparent
+    );
+    animation: loading 1.5s infinite;
+  }
+  
+  @keyframes loading {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+  }
+  
+  @keyframes pulse {
+    0% { opacity: 0.7; }
+    50% { opacity: 1; }
+    100% { opacity: 0.7; }
+  }
+  
+  /* First suggestion styling (direct word) */
+  .suggestion.first-suggestion {
+    background-color: var(--success-color);
+    border: 2px solid var(--success-hover);
+  }
+  
+  .suggestion.first-suggestion:hover {
+    background-color: var(--success-hover);
+  }
+  
+  /* Debug information for suggestions */
+  .suggestion[data-source]::after {
+    content: attr(data-source);
+    position: absolute;
+    bottom: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 2px 5px;
+    border-radius: 3px;
+    font-size: 10px;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    pointer-events: none;
+    z-index: 10;
+  }
+  
+  .suggestion[data-source]:hover::after {
+    opacity: 1;
+  }
+  
+  /* Empty state message */
+  .suggestions:empty::before {
+    content: "Typ letters voor suggesties";
+    display: block;
+    color: var(--text-muted);
+    font-style: italic;
+    text-align: center;
+    width: 100%;
+    padding: 10px;
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 480px) {
+    .wordlist-status {
+      font-size: 10px;
+      padding: 3px 6px;
+    }
+    
+    .suggestion {
+      padding: 8px 12px;
+      font-size: var(--font-size-small);
+      min-width: 70px;
+    }
+    
+    .suggestion[data-source]::after {
+      display: none; /* Hide debug info on small screens */
+    }
+  }
+
+
+
+  /* Add this to your styles.css file */
+
+/* Wordlist status indicator */
+.wordlist-status {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 12px;
+    padding: 4px 8px;
+    border-radius: 12px;
+    color: white;
+    cursor: pointer;
+    box-shadow: var(--shadow-small);
+    transition: all 0.3s ease;
+  }
+  
+  .wordlist-status.loading {
+    background-color: var(--warning-color);
+    animation: pulse 1.5s infinite;
+  }
+  
+  .wordlist-status.loaded {
+    background-color: var(--success-color);
+  }
+  
+  .wordlist-status.fallback {
+    background-color: var(--text-light);
+  }
+  
+  .wordlist-status:hover {
+    transform: translateY(-50%) scale(1.05);
+    box-shadow: var(--shadow-medium);
+  }
+  
+  /* Enhanced suggestions styling */
+  .suggestions {
+    position: relative;
+    min-height: 60px;
+  }
+  
+  /* Loading state */
+  .suggestions.loading::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(90deg, 
+      transparent, 
+      var(--primary-color), 
+      transparent
+    );
+    animation: loading 1.5s infinite;
+  }
+  
+  @keyframes loading {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+  }
+  
+  @keyframes pulse {
+    0% { opacity: 0.7; }
+    50% { opacity: 1; }
+    100% { opacity: 0.7; }
+  }
+  
+  /* First suggestion styling (direct word) */
+  .suggestion.first-suggestion {
+    background-color: var(--success-color);
+    border: 2px solid var(--success-hover);
+  }
+  
+  .suggestion.first-suggestion:hover {
+    background-color: var(--success-hover);
+  }
+  
+  /* Debug information for suggestions */
+  .suggestion[data-source]::after {
+    content: attr(data-source);
+    position: absolute;
+    bottom: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 2px 5px;
+    border-radius: 3px;
+    font-size: 10px;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    pointer-events: none;
+    z-index: 10;
+  }
+  
+  .suggestion[data-source]:hover::after {
+    opacity: 1;
+  }
+  
+  /* Empty state message */
+  .suggestions:empty::before {
+    content: "Typ letters voor suggesties";
+    display: block;
+    color: var(--text-muted);
+    font-style: italic;
+    text-align: center;
+    width: 100%;
+    padding: 10px;
+    
+  }
+
+
+  /* Add this to your styles.css file */
+
+/* Wordlist status indicator */
+.wordlist-status {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 12px;
+    padding: 4px 8px;
+    border-radius: 12px;
+    color: white;
+    cursor: pointer;
+    box-shadow: var(--shadow-small);
+    transition: all 0.3s ease;
+  }
+  
+  .wordlist-status.loading {
+    background-color: var(--warning-color);
+    animation: pulse 1.5s infinite;
+  }
+  
+  .wordlist-status.loaded {
+    background-color: var(--success-color);
+  }
+  
+  .wordlist-status.popular {
+    background-color: var(--secondary-color);
+  }
+  
+  .wordlist-status.fallback {
+    background-color: var(--text-light);
+  }
+  
+  .wordlist-status:hover {
+    transform: translateY(-50%) scale(1.05);
+    box-shadow: var(--shadow-medium);
+  }
+  
+  /* Enhanced suggestions styling */
+  .suggestions {
+    position: relative;
+    min-height: 60px;
+  }
+  
+  /* Loading state */
+  .suggestions.loading::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(90deg, 
+      transparent, 
+      var(--primary-color), 
+      transparent
+    );
+    animation: loading 1.5s infinite;
+  }
+  
+  @keyframes loading {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+  }
+  
+  @keyframes pulse {
+    0% { opacity: 0.7; }
+    50% { opacity: 1; }
+    100% { opacity: 0.7; }
+  }
+  
+  /* First suggestion styling (direct word) */
+  .suggestion.first-suggestion {
+    background-color: var(--success-color);
+    border: 2px solid var(--success-hover);
+  }
+  
+  .suggestion.first-suggestion:hover {
+    background-color: var(--success-hover);
+  }
+  
+  /* Word source styling */
+  .suggestion[data-source="popular"] {
+    background-color: var(--secondary-color);
+    border: 2px solid var(--secondary-hover);
+  }
+  
+  .suggestion[data-source="popular"]:hover {
+    background-color: var(--secondary-hover);
+  }
+  
+  .suggestion[data-source="wordlist"] {
+    background-color: var(--primary-color);
+  }
+  
+  .suggestion[data-source="fallback"] {
+    background-color: var(--text-light);
+  }
+  
+  /* Debug information for suggestions */
+  .suggestion[data-source]::after {
+    content: attr(data-source);
+    position: absolute;
+    bottom: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 2px 5px;
+    border-radius: 3px;
+    font-size: 10px;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    pointer-events: none;
+    z-index: 10;
+  }
+  
+  .suggestion[data-source]:hover::after {
+    opacity: 1;
+  }
+  
+  /* Empty state message */
+  .suggestions:empty::before {
+    content: "Typ letters voor suggesties";
+    display: block;
+    color: var(--text-muted);
+    font-style: italic;
+    text-align: center;
+    width: 100%;
+    padding: 10px;
+  }
