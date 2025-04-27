@@ -1,48 +1,209 @@
+// Dutch Stenograph Keyboard with OpenTaal wordlist integration
+// This version loads both popular words and the full wordlist
+
 document.addEventListener('DOMContentLoaded', function() {
     // Debug toggle and logging function
-    const DEBUG = false; // Set to true to enable debugging
+    const DEBUG = true; // Set to true to enable debugging
 
     function log(...args) {
         if (DEBUG) console.log('[Stenograph Keyboard]', ...args);
     }
     
-    // First check if the elements exist
+    // First check if elements exist
     checkElements();
     
     // Set number of suggestions to show
     let maxSuggestions = 3; // Configurable number of suggestions to display
     
-    // Add dictionary debugging
-    function checkDictionary() {
-        if (typeof dictionary === 'undefined') {
-            console.error('Dictionary is not defined');
-            return;
-        }
+    // Cache to store word suggestion results
+    const wordCache = new Map();
+    
+    // Dutch word indices for efficient lookups
+    let popularWordIndex = {}; // For most-popular.txt
+    let dutchWordIndex = {};   // For the full wordlist.txt
+    let isPopularWordsLoaded = false;
+    let isFullWordlistLoaded = false;
+    let loadingWordlist = false;
+    
+    // ====== LOAD WORD LISTS ======
+    async function loadWordlists() {
+        if (loadingWordlist) return;
         
-        log('Dictionary type:', typeof dictionary);
-        log('Dictionary keys count:', Object.keys(dictionary).length);
-        log('Sample dictionary entries:');
+        loadingWordlist = true;
+        log('Loading word lists...');
         
-        // Print first 5 entries
-        let count = 0;
-        for (const key in dictionary) {
-            if (count < 5) {
-                log(`  "${key}": ${JSON.stringify(dictionary[key])}`);
-                count++;
+        try {
+            // First load popular words
+            log('Loading popular words...');
+            const popularResponse = await fetch('./most-popular.txt');
+            if (popularResponse.ok) {
+                const popularText = await popularResponse.text();
+                processPopularWords(popularText);
+                log('Popular words loaded and processed successfully!');
+                isPopularWordsLoaded = true;
             } else {
-                break;
+                log('Failed to load popular words, status:', popularResponse.status);
             }
+            
+            // Then load the full wordlist
+            log('Loading full wordlist...');
+            const fullResponse = await fetch('./wordlist.txt');
+            if (fullResponse.ok) {
+                const fullText = await fullResponse.text();
+                processFullWordlist(fullText);
+                log('Full wordlist loaded and processed successfully!');
+                isFullWordlistLoaded = true;
+            } else {
+                log('Failed to load full wordlist, status:', fullResponse.status);
+            }
+            
+            // Force update suggestions if keys are selected
+            if (selectedKeys.length > 0) {
+                updateSuggestions();
+            }
+        } catch (error) {
+            console.error('Error loading wordlists:', error);
+            log('Falling back to built-in dictionary');
+        } finally {
+            loadingWordlist = false;
         }
+    }
+    
+    // Process popular words into an indexed structure
+    function processPopularWords(text) {
+        log('Processing popular words...');
         
-        // Check if specific keys exist
-        const keysToCheck = ['BO', 'A', 'DE', 'HET', 'VAN'];
-        keysToCheck.forEach(key => {
-            log(`'${key}' exists in dictionary:`, key in dictionary);
-            if (key in dictionary) {
-                log(`Value for '${key}':`, dictionary[key]);
+        // Split text into lines/words
+        const words = text.split('\n')
+            .map(line => line.trim())
+            .filter(line => line.length > 0);
+        
+        log(`Found ${words.length} popular Dutch words`);
+        
+        // Create indexes for efficient lookup
+        popularWordIndex = {};
+        
+        words.forEach(word => {
+            // Index by first 1-3 characters for quick lookup
+            for (let i = 1; i <= Math.min(3, word.length); i++) {
+                const prefix = word.substring(0, i).toLowerCase();
+                
+                if (!popularWordIndex[prefix]) {
+                    popularWordIndex[prefix] = [];
+                }
+                
+                // Add to this prefix's word list if not already there
+                if (!popularWordIndex[prefix].includes(word)) {
+                    popularWordIndex[prefix].push(word);
+                }
             }
         });
+        
+        log(`Created popular word index with ${Object.keys(popularWordIndex).length} prefixes`);
     }
+    
+    // Process full wordlist into an indexed structure
+    function processFullWordlist(text) {
+        log('Processing full wordlist...');
+        
+        // Split text into lines/words
+        const words = text.split('\n')
+            .map(line => line.trim())
+            .filter(line => line.length > 0);
+        
+        log(`Found ${words.length} Dutch words in full wordlist`);
+        
+        // Create indexes for efficient lookup
+        dutchWordIndex = {};
+        
+        words.forEach(word => {
+            // Index by first 1-3 characters for quick lookup
+            for (let i = 1; i <= Math.min(3, word.length); i++) {
+                const prefix = word.substring(0, i).toLowerCase();
+                
+                if (!dutchWordIndex[prefix]) {
+                    dutchWordIndex[prefix] = [];
+                }
+                
+                // Limit words per prefix to avoid too many matches (skip if already in popular words)
+                if (dutchWordIndex[prefix].length < 20 && 
+                    !dutchWordIndex[prefix].includes(word) &&
+                    !(popularWordIndex[prefix] && popularWordIndex[prefix].includes(word))) {
+                    dutchWordIndex[prefix].push(word);
+                }
+            }
+        });
+        
+        log(`Created full wordlist index with ${Object.keys(dutchWordIndex).length} prefixes`);
+    }
+    
+    // Start loading wordlists, but don't wait for them
+    loadWordlists();
+    
+    // ====== FALLBACK DICTIONARY ======
+    // Minimal Dutch dictionary for offline fallback
+    const fallbackDictionary = {
+        // Common single letters
+        'A': ['aan', 'af', 'al'],
+        'B': ['bij', 'ben', 'buiten'],
+        'C': ['centrum', 'contact'],
+        'D': ['de', 'dat', 'dan', 'dit'],
+        'E': ['een', 'en', 'er'],
+        'F': ['familie', 'functie'],
+        'G': ['gaan', 'goed', 'groot'],
+        'H': ['het', 'hebben', 'huis'],
+        'I': ['ik', 'in', 'is'],
+        'J': ['ja', 'jaar', 'jij'],
+        'K': ['kan', 'komen', 'kind'],
+        'L': ['laten', 'leven', 'land'],
+        'M': ['met', 'maar', 'maken'],
+        'N': ['naar', 'niet', 'nu'],
+        'O': ['om', 'ook', 'over'],
+        'P': ['plan', 'plaats'],
+        'R': ['recht', 'rond'],
+        'S': ['zijn', 'zal', 'zo'],
+        'T': ['te', 'tot', 'tijd'],
+        'U': ['uit', 'uur', 'uw'],
+        'V': ['van', 'voor', 'veel'],
+        'W': ['wat', 'wie', 'weer'],
+        'Z': ['zeer', 'zien', 'zoals'],
+        
+        // Common combinations
+        'AA': ['aan', 'aarde', 'aantal'],
+        'BE': ['ben', 'beter', 'bedrag'],
+        'DA': ['dag', 'data', 'daar'],
+        'DE': ['deze', 'denken', 'deel'],
+        'EE': ['een', 'eerst', 'eerder'],
+        'EN': ['en', 'echt', 'enkel'],
+        'ER': ['er', 'eerst', 'erbij'],
+        'GE': ['geen', 'geven', 'geld'],
+        'GO': ['goed', 'goud', 'god'],
+        'HE': ['het', 'heel', 'help'],
+        'IN': ['in', 'info', 'intern'],
+        'IS': ['is', 'isbn', 'islam'],
+        'KA': ['kan', 'kaart', 'kamer'],
+        'KO': ['komen', 'kopen', 'koers'],
+        'LA': ['laten', 'laatst', 'lage'],
+        'ME': ['met', 'meer', 'mee'],
+        'NA': ['naar', 'naast', 'naam'],
+        'NI': ['niet', 'nieuw', 'niveau'],
+        'OM': ['om', 'omdat', 'omhoog'],
+        'ON': ['onder', 'online', 'onze'],
+        'OP': ['op', 'open', 'optie'],
+        'OV': ['over', 'overal', 'oven'],
+        'TE': ['te', 'tegen', 'tekst'],
+        'UI': ['uit', 'uien', 'uitleg'],
+        'VA': ['van', 'vader', 'vaak'],
+        'VE': ['veel', 'verder', 'werk'],
+        'VO': ['voor', 'vol', 'vogel'],
+        'WA': ['wat', 'water', 'was'],
+        'WE': ['we', 'werk', 'week'],
+        'WO': ['wonen', 'woord', 'worden'],
+        'ZA': ['zaken', 'zag', 'zal'],
+        'ZE': ['ze', 'zeer', 'zelf'],
+        'ZI': ['zij', 'zien', 'zijn'],
+        'ZO': ['zo', 'zoals', 'zoek']
+    };
     
     // Check style of suggestions
     function checkSuggestionsStyle() {
@@ -65,24 +226,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Call our diagnostic functions
-    checkDictionary();
     setTimeout(checkSuggestionsStyle, 500);
-    
-    // Make sure the dictionary is defined before proceeding
-    if (typeof dictionary === 'undefined') {
-        console.error('Error: Dictionary is not defined. Please check that dictionary.js is loaded before main.js');
-        
-        // Create a fallback dictionary to prevent errors
-        window.dictionary = {
-            'TEST': ['test', 'testing'],
-            'BO': ['boven', 'boot', 'boom']  // Test case
-        };
-    } else {
-        log('Dictionary loaded successfully with ' + Object.keys(dictionary).length + ' entries');
-        
-        // Make sure the dictionary is available globally
-        window.dictionary = dictionary;
-    }
     
     // Safely get DOM elements with null checks
     const getElement = (id) => {
@@ -127,12 +271,13 @@ document.addEventListener('DOMContentLoaded', function() {
         infoPanel: getElement('infoPanel'),
         keyboardToggleBtn: getElement('keyboardToggleBtn'),
         keyboardPopup: getElement('keyboardPopup'),
-        keyboardHandle: getElement('keyboardHandle'), // Make sure this is defined
+        keyboardHandle: getElement('keyboardHandle'), 
         chatContainer: getElement('chatContainer'),
         messageInput: getElement('messageInput'),
         sendBtn: getElement('sendBtn'),
         closeKeyboardBtn: getElement('closeKeyboardBtn'),
-        sendKeyboardBtn: getElement('sendKeyboardBtn')
+        sendKeyboardBtn: getElement('sendKeyboardBtn'),
+        wordlistStatus: getElement('wordlistStatus')
     };
     
     const popupToggleBtn = document.querySelector('.keyboard-toggle-btn');
@@ -142,6 +287,145 @@ document.addEventListener('DOMContentLoaded', function() {
     let keyboardMode = 0; // 0 = primary, 1 = secondary, 2 = tertiary
     let touchStartY = 0;
     let touchCurrentY = 0;
+    let isOnline = navigator.onLine;
+    
+    // Track online status
+    window.addEventListener('online', () => { isOnline = true; });
+    window.addEventListener('offline', () => { isOnline = false; });
+    
+    // Get suggestions from wordlists (popular first, then full)
+    function getWordlistSuggestions(keySequence) {
+        if (!isPopularWordsLoaded && !isFullWordlistLoaded) {
+            return null; // Indicate wordlists not available
+        }
+        
+        const seq = keySequence.toLowerCase();
+        
+        // Always start with direct word
+        const results = [seq];
+        
+        // First check popular words
+        if (isPopularWordsLoaded) {
+            // Try exact prefix match in popular words
+            if (popularWordIndex[seq]) {
+                popularWordIndex[seq].forEach(word => {
+                    if (!results.includes(word)) {
+                        results.push(word);
+                    }
+                });
+            }
+            
+            // Try each letter as a starting point in popular words
+            for (let i = 0; i < seq.length; i++) {
+                const prefix = seq.substring(i, Math.min(i + 3, seq.length));
+                if (prefix.length > 0 && popularWordIndex[prefix]) {
+                    // Add some matching words, prioritize those that start with our sequence
+                    popularWordIndex[prefix]
+                        .filter(word => word.startsWith(seq))
+                        .forEach(word => {
+                            if (!results.includes(word)) {
+                                results.push(word);
+                            }
+                        });
+                }
+            }
+        }
+        
+        // If we still need more suggestions, try the full wordlist
+        if (results.length < maxSuggestions && isFullWordlistLoaded) {
+            // Try exact prefix match in full wordlist
+            if (dutchWordIndex[seq]) {
+                dutchWordIndex[seq].forEach(word => {
+                    if (!results.includes(word)) {
+                        results.push(word);
+                    }
+                });
+            }
+            
+            // Try each letter as a starting point in full wordlist
+            for (let i = 0; i < seq.length && results.length < maxSuggestions + 2; i++) {
+                const prefix = seq.substring(i, Math.min(i + 3, seq.length));
+                if (prefix.length > 0 && dutchWordIndex[prefix]) {
+                    // Add some matching words, prioritize those that start with our sequence
+                    dutchWordIndex[prefix]
+                        .filter(word => word.startsWith(seq))
+                        .forEach(word => {
+                            if (!results.includes(word)) {
+                                results.push(word);
+                            }
+                        });
+                }
+            }
+        }
+        
+        return results.slice(0, maxSuggestions);
+    }
+    
+    // Function to get word suggestions
+    async function fetchSuggestions(keySequence) {
+        if (!keySequence || keySequence.length === 0) {
+            return [];
+        }
+        
+        // Check cache first
+        const cacheKey = keySequence.toLowerCase();
+        if (wordCache.has(cacheKey)) {
+            log('Returning cached result for', cacheKey);
+            return wordCache.get(cacheKey);
+        }
+        
+        log('Finding suggestions for:', keySequence);
+        
+        // Always include the direct word formed by the keys
+        const directWord = keySequence.toLowerCase();
+        let results = [directWord];
+        
+        // Try to get suggestions from wordlists
+        const wordlistResults = getWordlistSuggestions(keySequence);
+        
+        if (wordlistResults) {
+            log('Using wordlist suggestions');
+            results = wordlistResults;
+        } else {
+            // Wordlists not loaded yet, use fallback
+            log('Wordlists not loaded, using fallback dictionary');
+            const fallbackResults = getFallbackSuggestions(keySequence);
+            results = fallbackResults;
+            
+            // Try to load wordlists if not already loading
+            if (!loadingWordlist && !isPopularWordsLoaded && !isFullWordlistLoaded) {
+                loadWordlists();
+            }
+        }
+        
+        // Cache the results
+        wordCache.set(cacheKey, results);
+        log('Final suggestions:', results);
+        
+        return results;
+    }
+    
+    // Get suggestions from fallback dictionary
+    function getFallbackSuggestions(keySequence) {
+        const seq = keySequence.toUpperCase();
+        
+        // Start with the direct word
+        const directWord = keySequence.toLowerCase();
+        let results = [directWord];
+        
+        // Check the main fallback dictionary
+        if (fallbackDictionary[seq]) {
+            results = [...new Set([...results, ...fallbackDictionary[seq]])];
+        }
+        
+        // Check dictionary with first letter
+        const firstChar = seq.charAt(0);
+        if (fallbackDictionary[firstChar]) {
+            results = [...new Set([...results, ...fallbackDictionary[firstChar]])];
+        }
+        
+        return results.slice(0, maxSuggestions);
+    }
     
     // Core functions
     function toggleKeyboardPopup(show) {
@@ -211,10 +495,24 @@ document.addEventListener('DOMContentLoaded', function() {
             key.classList.toggle('tertiary-selected', selectedKeys.includes(tertiaryKey));
         });
         
+        if (elements.symbolsKeyboard) {
+            elements.symbolsKeyboard.querySelectorAll('.key').forEach(key => {
+                if (!key) return;
+                
+                const primaryKey = key.dataset.primary;
+                const secondaryKey = key.dataset.secondary;
+                const tertiaryKey = key.dataset.tertiary;
+                
+                key.classList.toggle('primary-selected', selectedKeys.includes(primaryKey));
+                key.classList.toggle('secondary-selected', selectedKeys.includes(secondaryKey));
+                key.classList.toggle('tertiary-selected', selectedKeys.includes(tertiaryKey));
+            });
+        }
+        
         updateSuggestions();
     }
     
-    function updateSuggestions() {
+    async function updateSuggestions() {
         if (!elements.suggestions) {
             console.error('Suggestions element is missing');
             return;
@@ -232,92 +530,29 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
         
-        // Ensure dictionary is defined and using window.dictionary for global access
-        const dict = window.dictionary || {};
-        log('Dictionary available with entries:', Object.keys(dict).length);
+        // Add loading indicator
+        elements.suggestions.classList.add('loading');
         
         // Get the sequence of keys
         const rawSequence = selectedKeys.join('');
         log('Raw sequence formed:', rawSequence);
         
-        // Try different case formats for exact matches
+        // Try to get suggestions
         let words = [];
         
-        // Try exact match (case sensitive)
-        if (dict[rawSequence]) {
-            log(`Found exact match for "${rawSequence}":`, dict[rawSequence]);
-            words = [...dict[rawSequence]];
-        } 
-        // Try uppercase
-        else if (dict[rawSequence.toUpperCase()]) {
-            log(`Found uppercase match for "${rawSequence.toUpperCase()}":`, dict[rawSequence.toUpperCase()]);
-            words = [...dict[rawSequence.toUpperCase()]];
-        }
-        // Try lowercase
-        else if (dict[rawSequence.toLowerCase()]) {
-            log(`Found lowercase match for "${rawSequence.toLowerCase()}":`, dict[rawSequence.toLowerCase()]);
-            words = [...dict[rawSequence.toLowerCase()]];
+        try {
+            words = await fetchSuggestions(rawSequence);
+            log('Fetched suggestions:', words);
+        } catch (error) {
+            console.error('Failed to fetch suggestions:', error);
+            // Use direct word as fallback
+            words = [rawSequence.toLowerCase()];
         }
         
-        log('Matches after key lookup:', words);
+        // Remove loading indicator
+        elements.suggestions.classList.remove('loading');
         
-        // For partial matches if no exact match found
-        if (words.length === 0) {
-            log('No exact case matches, checking pattern matches');
-            
-            try {
-                // Create a regex pattern to match our sequence
-                const pattern = new RegExp(rawSequence, 'i');
-                log('Using regex pattern:', pattern);
-                
-                Object.entries(dict).forEach(([combo, wordList]) => {
-                    // Check if the combo contains our pattern
-                    if (pattern.test(combo)) {
-                        log(`Combo "${combo}" matches pattern "${pattern}", adding:`, wordList);
-                        words = [...words, ...wordList];
-                    }
-                });
-                
-                // Also check if our keys are a subset of any combo
-                const uniqueKeys = [...new Set(selectedKeys)];
-                log('Checking if unique keys are subset of combos:', uniqueKeys);
-                
-                Object.entries(dict).forEach(([combo, wordList]) => {
-                    const comboChars = combo.split('');
-                    const isSubset = uniqueKeys.every(key => 
-                        comboChars.includes(key) || 
-                        comboChars.includes(key.toUpperCase()) || 
-                        comboChars.includes(key.toLowerCase())
-                    );
-                    
-                    if (isSubset) {
-                        log(`Keys are subset of "${combo}", adding words:`, wordList);
-                        // Don't add duplicates
-                        wordList.forEach(word => {
-                            if (!words.includes(word)) {
-                                words.push(word);
-                            }
-                        });
-                    }
-                });
-            } catch (error) {
-                console.error('Error in pattern matching:', error);
-            }
-        }
-        
-        // Add the direct word formed by the keys in sequence
-        const directWord = rawSequence.toLowerCase();
-        if (directWord.length > 0) {
-            // Only add if not already in the list
-            if (!words.includes(directWord)) {
-                log(`Adding direct word: "${directWord}"`);
-                words = [directWord, ...words];
-            }
-        }
-        
-        // Limit to configured number of suggestions
-        words = words.slice(0, maxSuggestions);
-        log(`Final suggestions (limited to ${maxSuggestions}):`, words);
+        log('Final suggestions:', words);
         
         if (words.length === 0) {
             log('No suggestions found');
@@ -325,11 +560,33 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         // Create suggestion elements
-        words.forEach(word => {
+        words.forEach((word, index) => {
             log(`Creating suggestion element for: "${word}"`);
             const suggElement = document.createElement('div');
             suggElement.className = 'suggestion';
+            
+            // Make the first suggestion green (usually the direct word)
+            if (index === 0) {
+                suggElement.classList.add('first-suggestion');
+            }
+            
             suggElement.textContent = word;
+            
+            // Add source indicator for debugging
+            if (DEBUG) {
+                let source = 'direct';
+                if (index > 0) {
+                    if (isPopularWordsLoaded && hasWordInPopular(word)) {
+                        source = 'popular';
+                    } else if (isFullWordlistLoaded) {
+                        source = 'wordlist';
+                    } else {
+                        source = 'fallback';
+                    }
+                }
+                suggElement.setAttribute('data-source', source);
+            }
+            
             suggElement.addEventListener('click', () => {
                 appendWord(word);
                 clearSelectedKeys();
@@ -340,6 +597,21 @@ document.addEventListener('DOMContentLoaded', function() {
         // Make sure suggestions are visible
         elements.suggestions.style.display = 'flex';
         elements.suggestions.style.visibility = 'visible';
+    }
+    
+    // Helper function to check if a word is in the popular words index
+    function hasWordInPopular(word) {
+        if (!isPopularWordsLoaded) return false;
+        
+        // Check if word exists in any popular word list
+        for (let i = 1; i <= Math.min(3, word.length); i++) {
+            const prefix = word.substring(0, i).toLowerCase();
+            if (popularWordIndex[prefix] && popularWordIndex[prefix].includes(word)) {
+                return true;
+            }
+        }
+        
+        return false;
     }
 
     function checkElements() {
@@ -567,6 +839,28 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
+    // Update wordlist status indicator
+    function updateWordlistStatus() {
+        if (!elements.wordlistStatus) return;
+        
+        if (loadingWordlist) {
+            elements.wordlistStatus.textContent = 'Laden...';
+            elements.wordlistStatus.className = 'wordlist-status loading';
+        } else if (isPopularWordsLoaded && isFullWordlistLoaded) {
+            elements.wordlistStatus.textContent = 'OpenTaal Compleet';
+            elements.wordlistStatus.className = 'wordlist-status loaded';
+        } else if (isPopularWordsLoaded) {
+            elements.wordlistStatus.textContent = 'Populaire Woorden';
+            elements.wordlistStatus.className = 'wordlist-status popular';
+        } else {
+            elements.wordlistStatus.textContent = 'Terugvalbasis';
+            elements.wordlistStatus.className = 'wordlist-status fallback';
+        }
+    }
+    
+    // Update status periodically
+    setInterval(updateWordlistStatus, 500);
+    
     // Set up event listeners
     function setupEventListeners() {
         // Popup toggle
@@ -781,6 +1075,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 e.preventDefault();
             }
         });
+        
+        // Wordlist reload button
+        if (elements.wordlistStatus) {
+            elements.wordlistStatus.addEventListener('click', () => {
+                if (!loadingWordlist) {
+                    loadWordlists();
+                }
+            });
+        }
     }
     
     // Initialize
