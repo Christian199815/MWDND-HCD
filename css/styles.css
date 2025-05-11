@@ -68,9 +68,26 @@
   
   body {
     display: flex;
-    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #f0f0f0; /* Background color for the outer area */
+    margin: 0;
+    padding: 0;
+    position: relative; /* For positioning context */
+
+  }
+
+  .app-container {
+    max-width: 375px;
     height: 100vh;
+    max-height: 812px;
+    display: flex;
+    flex-direction: column;
     background-color: var(--background-color);
+    overflow: hidden;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+    position: relative; 
   }
   
   /* WhatsApp Header */
@@ -109,6 +126,7 @@
     background-size: 200px;
     background-blend-mode: overlay;
     background-color: var(--chat-bgcolor);
+
   }
   
   .message {
@@ -187,10 +205,10 @@
   
   /* Keyboard Toggle Button */
   .keyboard-toggle-btn {
-    position: fixed;
+    position: absolute; /* Change from fixed to absolute */
     bottom: 70px;
     right: 20px;
-    width: 100px;
+    width: 60px;
     aspect-ratio: 1;
     background-color: var(--primary-color);
     color: white;
@@ -203,11 +221,12 @@
     box-shadow: var(--shadow-medium);
     z-index: 500;
     cursor: pointer;
+
   }
   
   /* Keyboard Popup */
   .keyboard-popup {
-    position: fixed;
+    position: absolute; /* Change from fixed to absolute */
     bottom: 0;
     left: 0;
     width: 100%;
@@ -219,8 +238,9 @@
     transition: transform 0.3s ease-out;
     z-index: 1000;
     padding: 15px;
-    max-height: 90vh;
+    max-height: 90%;
     overflow-y: auto;
+
     
     &.active {
       transform: translateY(0);
@@ -243,7 +263,7 @@
       & .close-keyboard-btn {
         position: absolute;
         right: 0;
-        top: -8px;
+        top: -12px;
         width: 70px;
         height: 30px;
         border-radius: 15%;
@@ -278,7 +298,6 @@
     display: flex;
     flex-direction: column;
     gap: 10px;
-    margin-bottom: 15px;
     
     & .output-area {
       width: 100%;
@@ -299,6 +318,23 @@
       flex-direction: row;
       gap: 10px;
       justify-content: flex-end;
+
+      & .info-toggle {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        background-color: var(--warning-color);
+        color: var(--text-color);
+        font-weight: bold;
+        border: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-size: var(--font-size-normal);
+        /* position: absolute; */
+        /* right: 0; */
+      }
     }
   }
   
@@ -384,7 +420,6 @@
   .tabs {
     display: flex;
     gap: 10px;
-    margin-bottom: 15px;
     width: 100%;
     position: relative;
     
@@ -404,22 +439,7 @@
       }
     }
     
-    & .info-toggle {
-      width: 30px;
-      height: 30px;
-      border-radius: 50%;
-      background-color: var(--warning-color);
-      color: var(--text-color);
-      font-weight: bold;
-      border: none;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      font-size: var(--font-size-normal);
-      position: absolute;
-      right: 0;
-    }
+    
   }
   
   /* Keyboard container */
@@ -465,7 +485,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    font-size: var(--font-size-large);
+    font-size: var(--font-size-small);
     font-weight: bold;
     background-color: #fff;
     border: 2px solid var(--text-color);
@@ -477,8 +497,8 @@
     aspect-ratio: 1 / 1;
     width: 100%;
     height: 100%;
-    min-height: var(--key-size-desktop);
-    min-width: var(--key-size-desktop);
+    min-height: var(--key-size-mobile);
+    min-width: var(--key-size-mobile);
     position: relative;
     
     &:active {
@@ -493,7 +513,7 @@
     
     /* Character positioning */
     & span:first-child {
-      font-size: var(--font-size-xxlarge);
+      font-size: var(--font-size-xlarge);
       transition: font-size 0.3s ease, color 0.2s ease, position 0.3s ease;
       position: relative;
     }
@@ -634,12 +654,20 @@
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 10px;
-    margin-top: 10px;
     width: 100%;
+    box-sizing: border-box;
+  /* padding: 0 5px; */
   }
   
   .control-btn {
+    box-shadow: var(--shadow-large);
     aspect-ratio: 1 / 1;
+    width: 100%;
+    height: 100%;
+    min-height: var(--key-size-mobile);
+    min-width: var(--key-size-mobile);
+    position: relative;
+
     padding: 5px;
     background-color: #4CAF50;
     color: white;
@@ -651,10 +679,11 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    font-size: var(--font-size-small);
+    font-size: var(--font-size-tiny);
     font-weight: bold;
     box-shadow: var(--shadow-medium);
-    min-height: var(--key-size-desktop);
+
+    
     
     &:hover {
       background-color: #45a049;
@@ -746,13 +775,20 @@
   }
   
   /* Media queries for responsive design */
-  @media (max-width: 768px) {
+  /* @media (max-width: 768px) {
     .container {
       max-width: 100%;
       padding: 5px;
     }
+
+    .control-btn {
+      min-height: var(--key-size-tablet);
+    }
     
     .key {
+      min-height: var(--key-size-tablet);
+      min-width: var(--key-size-tablet);
+
       & span:first-child {
         font-size: 28px;
       }
@@ -804,11 +840,11 @@
         height: 30px;
       }
     }
-    
+
     .keyboard .key, 
     .symbols-keyboard .key {
-      min-height: 40px;
-      min-width: 40px;
+      min-height: var(--key-size-mobile);
+      min-width: var(--key-size-mobile);
     }
     
     .key {
@@ -826,7 +862,7 @@
     }
     
     .control-btn {
-      min-height: 40px;
+      min-height: var(--key-size-mobile);
       font-size: 12px;
     }
     
@@ -853,6 +889,8 @@
       padding: 1px;
       height: 25px;
     }
+
+    
     
     .space-key {
       height: 25px;
@@ -860,8 +898,8 @@
     
     .keyboard .key,
     .symbols-keyboard .key {
-      min-height: 30px;
-      min-width: 30px;
+      min-height: var(--key-size-mobile);
+      min-width: var(--key-size-mobile);
     }
     
     .key {
@@ -879,7 +917,7 @@
     }
     
     .control-btn {
-      min-height: 30px;
+      min-height: var(--key-size-mobile);
       font-size: 10px;
       padding: 3px;
     }
@@ -907,7 +945,7 @@
     .symbols-keyboard.tertiary-mode .key .tertiary {
       font-size: 20px;
     }
-  }
+  } */
 
 
   /* Additional CSS to add to your styles.css file for improved suggestion styling */

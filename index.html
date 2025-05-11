@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="./css/styles.css" />
   </head>
   <body>
+    <section class="app-container">
     <!-- WhatsApp Header -->
     <div class="header">
       <h1>WhatsApp</h1>
@@ -71,6 +72,7 @@
         <div class="output-container">
           <textarea class="output-area" id="output" readonly></textarea>
           <div class="output-buttons">
+          <button class="info-toggle" id="infoToggle">?</button>
             <button class="word-delete-btn" id="wordDeleteBtn">
               Delete Word
             </button>
@@ -81,7 +83,6 @@
         <div class="tabs">
           <button class="tab-btn active" id="stenographTab">Letters</button>
           <button class="tab-btn" id="symbolsTab">Symbols & Numbers</button>
-          <button class="info-toggle" id="infoToggle">?</button>
         </div>
 
         <div class="controls">
@@ -398,6 +399,7 @@
         </div>
       </div>
     </div>
+    </section>
 
     <!-- Include only main.js -->
     <script src="./js/main.js"></script>
